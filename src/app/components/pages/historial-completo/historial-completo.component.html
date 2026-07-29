@@ -1,0 +1,62 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+
+      <h5 class="mb-4">Historial Clínico Completo</h5>
+
+      <div class="flex align-items-end gap-2 mb-4">
+        <div class="field mb-0" style="min-width: 260px;">
+          <label for="cedulaBuscar">Cédula del paciente</label>
+          <input type="text" pInputText id="cedulaBuscar" [(ngModel)]="busquedaCedula"
+                 (keyup.enter)="buscarPaciente()" placeholder="Ej: 1312345678" />
+        </div>
+        <button pButton pRipple label="Buscar" icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+      </div>
+
+      <div *ngIf="pacienteActivo" class="surface-100 border-round p-3 mb-4">
+        <strong>{{ pacienteActivo.apellidos }} {{ pacienteActivo.nombres }}</strong>
+        — Edad: {{ pacienteActivo.edad }} — Sexo: {{ pacienteActivo.sexo }}
+      </div>
+
+      <div *ngIf="pacienteActivo && cargandoHistorial" class="text-center py-4">
+        <i class="pi pi-spin pi-spinner text-3xl"></i>
+      </div>
+
+      <p-timeline *ngIf="pacienteActivo && !cargandoHistorial && eventos.length > 0" [value]="eventos" align="alternate">
+        <ng-template pTemplate="marker" let-evento>
+          <span class="flex align-items-center justify-content-center border-circle text-white"
+                [style]="{ backgroundColor: evento.color, width: '2rem', height: '2rem' }">
+            <i [class]="evento.icono"></i>
+          </span>
+        </ng-template>
+        <ng-template pTemplate="content" let-evento>
+          <p-card>
+            <div class="flex justify-content-between align-items-center mb-2">
+              <p-tag [value]="evento.especialidad" [style]="{ backgroundColor: evento.color }"></p-tag>
+              <small class="text-500">{{ evento.fecha }}</small>
+            </div>
+            <p class="m-0">{{ evento.resumen }}</p>
+          </p-card>
+        </ng-template>
+      </p-timeline>
+
+      <div *ngIf="pacienteActivo && !cargandoHistorial && eventos.length === 0" class="text-center text-500 py-6">
+        Este paciente no tiene consultas registradas todavía.
+      </div>
+
+      <div *ngIf="!pacienteActivo" class="text-center text-500 py-6">
+        Busque un paciente por cédula para ver su historial completo (todas las especialidades).
+      </div>
+
+      <div class="surface-100 border-round p-3 mt-4">
+        <i class="pi pi-info-circle text-primary mr-2"></i>
+        Esta vista muestra un resumen (diagnóstico y fecha) de todas las especialidades para dar
+        panorama completo. Para ver el contenido clínico detallado y descifrado de una consulta
+        específica, entre al módulo de esa especialidad (Medicina General o Rehabilitación Física).
+      </div>
+
+    </div>
+  </div>
+</div>

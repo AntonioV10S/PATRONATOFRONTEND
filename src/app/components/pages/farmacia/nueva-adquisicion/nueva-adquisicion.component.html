@@ -1,0 +1,118 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+
+      <p-panel header="Crear una Adquisición" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-3">
+            <label for="numeroadqui">Número o Código de Adquisición</label>
+            <input type="text" pInputText id="numeroadqui" [(ngModel)]="numeroadqui" placeholder="Ingrese número o código" />
+          </div>
+          <div class="field col-3">
+            <label for="fechaadqui">Fecha de Adquisición</label>
+            <input type="date" pInputText id="fechaadqui" [(ngModel)]="fechaadqui" />
+          </div>
+          <div class="field col-2">
+            <label>Fecha Registro</label>
+            <input type="text" pInputText [value]="fecharegadqui" [disabled]="true" />
+          </div>
+          <div class="field col-2">
+            <label>Tipo</label>
+            <div class="flex gap-3 mt-2">
+              <div class="flex align-items-center gap-1">
+                <p-radioButton name="tipo" [value]="false" [(ngModel)]="tipoadqui" inputId="tipoDonativo"></p-radioButton>
+                <label for="tipoDonativo">Donativo</label>
+              </div>
+              <div class="flex align-items-center gap-1">
+                <p-radioButton name="tipo" [value]="true" [(ngModel)]="tipoadqui" inputId="tipoCompra"></p-radioButton>
+                <label for="tipoCompra">Compra</label>
+              </div>
+            </div>
+          </div>
+          <div class="field col-2">
+            <label>Total adquisición</label>
+            <p-inputNumber [(ngModel)]="totalAdquisicion" mode="currency" currency="USD" locale="en-US" [disabled]="true"></p-inputNumber>
+          </div>
+
+          <div class="field col-12">
+            <label for="descripcionadqui">Descripción de la Adquisición</label>
+            <textarea pInputTextarea id="descripcionadqui" [(ngModel)]="descripcionadqui" rows="3" placeholder="Escriba descripción de la Adquisición"></textarea>
+          </div>
+
+          <div class="field col-12">
+            <label for="documento">Agregar Documento</label>
+            <input type="file" id="documento" (change)="onArchivoSeleccionado($event)" class="block" />
+            <small *ngIf="nombreArchivo" class="text-500">{{ nombreArchivo }}</small>
+          </div>
+        </div>
+      </p-panel>
+
+      <p-panel header="Medicamentos" [toggleable]="true" styleClass="mb-3">
+        <div *ngFor="let fila of filas; let i = index" class="formgrid grid p-fluid mb-2 pb-3" style="border-bottom: 1px solid #eee;">
+          <div class="field col-12 flex align-items-center gap-2 mb-1">
+            <p-checkbox [binary]="true" [(ngModel)]="fila.esNuevo" [inputId]="'esNuevo'+i"></p-checkbox>
+            <label [for]="'esNuevo'+i">Es un medicamento nuevo (no está en el catálogo)</label>
+          </div>
+
+          <div class="field col-3" *ngIf="!fila.esNuevo">
+            <label>Medicamento</label>
+            <p-dropdown [(ngModel)]="fila.id_medicamento" [options]="medicamentosDisponibles" optionLabel="nombre" optionValue="id_medicamento"
+                        placeholder="Seleccionar del catálogo" [filter]="true"></p-dropdown>
+          </div>
+
+          <ng-container *ngIf="fila.esNuevo">
+            <div class="field col-2">
+              <label>Nombre</label>
+              <input type="text" pInputText [(ngModel)]="fila.nombre" placeholder="Nombre" />
+            </div>
+            <div class="field col-2">
+              <label>Descripción</label>
+              <input type="text" pInputText [(ngModel)]="fila.descripcion" placeholder="Descripción" />
+            </div>
+            <div class="field col-1">
+              <label>Laboratorio</label>
+              <p-dropdown [(ngModel)]="fila.id_laboratorio" [options]="laboratorios" optionLabel="nombre" optionValue="id_laboratorio" placeholder="—"></p-dropdown>
+            </div>
+            <div class="field col-1">
+              <label>Categoría</label>
+              <p-dropdown [(ngModel)]="fila.id_categoriamedicamento" [options]="categorias" optionLabel="tipo" optionValue="id_categoriamedicamento" placeholder="—"></p-dropdown>
+            </div>
+          </ng-container>
+
+          <div class="field col-1">
+            <label>Existencias</label>
+            <p-inputNumber [(ngModel)]="fila.existencias" placeholder="00" [min]="0"></p-inputNumber>
+          </div>
+          <div class="field col-2">
+            <label>Fecha Elaboración</label>
+            <input type="date" pInputText [(ngModel)]="fila.fechaElaboracion" />
+          </div>
+          <div class="field col-2">
+            <label>Fecha Expiración</label>
+            <input type="date" pInputText [(ngModel)]="fila.fechaExpiracion" />
+          </div>
+          <div class="field col-1 flex align-items-end">
+            <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm w-full" label="Eliminar" (click)="eliminarFila(i)"></button>
+          </div>
+
+          <div class="field col-3">
+            <label>Código de barra</label>
+            <input type="text" pInputText [(ngModel)]="fila.codigodebarra" placeholder="Código" />
+          </div>
+          <div class="field col-3">
+            <label>Valor Uni.</label>
+            <p-inputNumber [(ngModel)]="fila.valoruni" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+          </div>
+        </div>
+
+        <button pButton pRipple label="Agregar" icon="pi pi-plus" class="p-button-secondary mb-3" (click)="agregarFila()"></button>
+
+        <div class="flex justify-content-end">
+          <button pButton pRipple label="Crear Adquisición" icon="pi pi-check" [loading]="guardando" (click)="crearAdquisicion()"></button>
+        </div>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

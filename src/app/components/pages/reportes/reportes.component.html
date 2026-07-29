@@ -1,0 +1,119 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <h5 class="mb-4">Reportes Estadísticos</h5>
+      <p-toast></p-toast>
+
+      <div class="grid">
+
+        <!-- Reportes mensuales -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Reportes Mensuales">
+            <div class="formgrid grid mb-3">
+              <div class="field col-6">
+                <label for="mesMensual">Mes</label>
+                <p-dropdown id="mesMensual" [(ngModel)]="mesMensual" [options]="meses" optionLabel="label" optionValue="value"></p-dropdown>
+              </div>
+              <div class="field col-6">
+                <label for="yearMensual">Año</label>
+                <input type="number" pInputText id="yearMensual" [(ngModel)]="yearMensual" />
+              </div>
+            </div>
+            <div class="flex flex-column gap-2">
+              <button pButton pRipple label="Reporte de Pacientes Mensual" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'pacientesMensual'" (click)="reportePacientesMensual()"></button>
+              <button pButton pRipple label="Consolidado — Medicina General" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'consolidadoMG'" (click)="consolidadoMG()"></button>
+              <button pButton pRipple label="Consolidado — Rehabilitación Física" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'consolidadoRF'" (click)="consolidadoRF()"></button>
+              <button pButton pRipple label="Morbilidad — Medicina General" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'morbilidadMG'" (click)="morbilidadMG()"></button>
+              <button pButton pRipple label="Morbilidad — Rehabilitación Física" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'morbilidadRF'" (click)="morbilidadRF()"></button>
+              <button pButton pRipple label="Recaudación Mensual" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'recaudacionMensual'" (click)="recaudacionMensual()"></button>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Reportes diarios -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Reportes Diarios (Registro MSP)">
+            <div class="field mb-3">
+              <label for="fechaDiaria">Fecha</label>
+              <input type="date" pInputText id="fechaDiaria" [(ngModel)]="fechaDiaria" />
+            </div>
+            <div class="flex flex-column gap-2">
+              <button pButton pRipple label="Registro Diario — Medicina General" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'diarioMG'" (click)="registroDiarioMG()"></button>
+              <button pButton pRipple label="Registro Diario — Rehabilitación Física" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'diarioRF'" (click)="registroDiarioRF()"></button>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Reporte anual -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Reporte Anual">
+            <div class="field mb-3">
+              <label for="yearAnual">Año</label>
+              <input type="number" pInputText id="yearAnual" [(ngModel)]="yearAnual" />
+            </div>
+            <button pButton pRipple label="Reporte de Pacientes Anual" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'pacientesAnual'" (click)="reportePacientesAnual()"></button>
+          </p-card>
+        </div>
+
+        <!-- Reportes por lugar -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Reportes por Lugar de Atención">
+            <div class="formgrid grid mb-3">
+              <div class="field col-4">
+                <label for="lugarSel">Lugar</label>
+                <p-dropdown id="lugarSel" [(ngModel)]="lugarSeleccionado" [options]="lugarOptions" optionLabel="label" optionValue="value"></p-dropdown>
+              </div>
+              <div class="field col-4">
+                <label for="desdeLugar">Desde</label>
+                <input type="date" pInputText id="desdeLugar" [(ngModel)]="desdeLugar" />
+              </div>
+              <div class="field col-4">
+                <label for="hastaLugar">Hasta</label>
+                <input type="date" pInputText id="hastaLugar" [(ngModel)]="hastaLugar" />
+              </div>
+            </div>
+            <div class="flex flex-column gap-2">
+              <button pButton pRipple label="Por Lugar — Medicina General" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'lugarMG'" (click)="lugarMG()"></button>
+              <button pButton pRipple label="Por Lugar — Rehabilitación Física" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'lugarRF'" (click)="lugarRF()"></button>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Recaudación diaria por rol -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Recaudación Diaria por Servicio">
+            <div class="formgrid grid mb-3">
+              <div class="field col-6">
+                <label for="fechaRecaud">Fecha</label>
+                <input type="date" pInputText id="fechaRecaud" [(ngModel)]="fechaRecaudacion" />
+              </div>
+              <div class="field col-6">
+                <label for="rolRecaud">Servicio</label>
+                <p-dropdown id="rolRecaud" [(ngModel)]="idRolRecaudacion" [options]="roles" optionLabel="rol" optionValue="id_rol" placeholder="Seleccionar"></p-dropdown>
+              </div>
+            </div>
+            <div class="flex flex-column gap-2">
+              <button pButton pRipple label="Recaudación Diaria — Medicina General" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'recaudDiariaMG'" (click)="recaudacionDiariaMG()"></button>
+              <button pButton pRipple label="Recaudación Diaria — Rehabilitación Física" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'recaudDiariaRF'" (click)="recaudacionDiariaRF()"></button>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Recetas de farmacia -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Recetas de Farmacia">
+            <div class="field mb-3">
+              <label for="idEntregaReceta">N° de Entrega</label>
+              <input type="number" pInputText id="idEntregaReceta" [(ngModel)]="idEntregaReceta" placeholder="Ver el ID en el módulo de Entregas" />
+            </div>
+            <div class="flex flex-column gap-2">
+              <button pButton pRipple label="Receta (pendiente de despacho)" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'recetapdf'" (click)="recetaPendiente()"></button>
+              <button pButton pRipple label="Receta Final (ya despachada)" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'recetafinal'" (click)="recetaFinal()"></button>
+            </div>
+          </p-card>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

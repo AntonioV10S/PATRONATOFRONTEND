@@ -1,0 +1,135 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-panel [header]="editando ? 'Editar Cuenta' : 'Crear Cuenta'" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-6">
+            <label for="nombres">Nombres</label>
+            <input type="text" pInputText id="nombres" [(ngModel)]="cuenta.nombres" placeholder="Ingrese los nombres completos"
+                   [ngClass]="{'ng-invalid': submitted && !cuenta.nombres}" />
+          </div>
+          <div class="field col-6">
+            <label for="correo">Correo</label>
+            <input type="email" pInputText id="correo" [(ngModel)]="cuenta.correo" placeholder="Ingrese el correo"
+                   [ngClass]="{'ng-invalid': submitted && !cuenta.correo}" />
+          </div>
+
+          <div class="field col-6">
+            <label for="rol">Rol</label>
+            <p-dropdown id="rol" [(ngModel)]="cuenta.id_rol" [options]="roles" optionLabel="rol" optionValue="id_rol"
+                        placeholder="Seleccionar" [ngClass]="{'ng-invalid': submitted && !cuenta.id_rol}"></p-dropdown>
+          </div>
+          <div class="field col-6">
+            <label for="password">Contraseña</label>
+            <p-password id="password" [(ngModel)]="cuenta.password" [toggleMask]="true" [feedback]="false"
+                        [placeholder]="editando ? 'Dejar en blanco para no cambiarla' : 'Ingrese la contraseña'"></p-password>
+          </div>
+
+          <div class="field col-6">
+            <label for="foto">Foto</label>
+            <input type="file" id="foto" accept="image/*" (change)="onArchivoSeleccionado($event)" class="block" />
+            <img *ngIf="previewImagen" [src]="previewImagen" alt="Vista previa" class="mt-2 border-circle" style="width: 3rem; height: 3rem; object-fit: cover;">
+          </div>
+          <div class="field col-6">
+            <label for="estado">Estado</label>
+            <p-dropdown id="estado" [(ngModel)]="cuenta.estado" [options]="estadoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" *ngIf="editando" (click)="openNew()"></button>
+          <button pButton pRipple [label]="editando ? 'Guardar Cambios' : 'Crear Cuenta'" icon="pi pi-check" [loading]="guardando" (click)="guardarCuenta()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Cuentas Registradas" [toggleable]="true">
+        <div class="flex justify-content-end mb-3">
+          <div class="p-inputgroup" style="max-width: 320px;">
+            <input type="text" pInputText placeholder="Escriba el nombre de la cuenta" [(ngModel)]="busqueda" />
+            <button pButton pRipple icon="pi pi-search" label="Buscar"></button>
+          </div>
+        </div>
+
+        <p-table [value]="cuentasFiltradas" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_cuenta">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Nombres</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.nombres }}</td>
+              <td>{{ datos.correo }}</td>
+              <td>{{ datos.role?.rol || '—' }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado ? 'Habilitado' : 'Inhabilitado'" [severity]="datos.estado ? 'success' : 'danger'"></p-tag>
+              </td>
+              <td class="text-center">
+                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarCuenta(datos)"></button>
+                <ng-container *ngIf="datos.role?.rol !== 'Administrador'">
+                  <button pButton pRipple label="Eliminar" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="confirmarEliminar(datos)"></button>
+                </ng-container>
+                <button pButton pRipple icon="pi pi-lock" class="p-button-text p-button-sm"
+                        pTooltip="Resetear contraseña" (click)="abrirResetearPassword(datos)"></button>
+                <button pButton pRipple icon="pi pi-key" class="p-button-text p-button-sm" *ngIf="datos.role?.atiende_medico || datos.role?.atencion"
+                        pTooltip="Regenerar llave ECC" (click)="confirmarRegenerarLlave(datos)"></button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="5" class="text-center">No hay cuentas registradas.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+
+      <!-- Llave privada ECC generada: el backend solo la entrega esta vez -->
+      <p-dialog [(visible)]="llavePrivadaDialog" [style]="{width:'650px'}" header="Llave Privada Generada" [modal]="true" [closable]="false">
+        <ng-template pTemplate="content">
+          <div class="surface-100 border-round p-3 mb-3">
+            <i class="pi pi-exclamation-triangle text-orange-500 mr-2"></i>
+            <strong>Esta llave privada no se guarda en el servidor y no se puede volver a mostrar.</strong>
+            Descárguela o cópiela ahora. La cuenta <strong>{{ nombreCuentaGenerada }}</strong> la necesitará
+            cada vez que firme una historia clínica (Medicina General o Rehabilitación Física).
+          </div>
+          <textarea pInputTextarea [rows]="12" [readonly]="true" class="w-full" style="font-family: monospace; font-size: 0.8rem;">{{ llavePrivadaGenerada }}</textarea>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Copiar" icon="pi pi-copy" class="p-button-secondary" (click)="copiarLlavePrivada()"></button>
+          <button pButton pRipple label="Descargar .pem" icon="pi pi-download" (click)="descargarLlavePrivada()"></button>
+          <button pButton pRipple label="Ya la guardé, cerrar" icon="pi pi-check" class="p-button-success" (click)="cerrarLlavePrivadaDialog()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Resetear contraseña (admin) -->
+      <p-dialog [(visible)]="resetPasswordDialog" [style]="{width:'420px'}" header="Resetear Contraseña" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="surface-100 border-round p-3 mb-3">
+            <i class="pi pi-info-circle text-primary mr-2"></i>
+            Va a fijar una contraseña temporal para <strong>{{ cuentaAResetear?.nombres }}</strong>.
+            Comuníquesela por un canal aparte (en persona o por teléfono) — no queda visible en el
+            sistema después de guardar. Recomiéndele cambiarla de inmediato desde su propio perfil.
+          </div>
+          <div class="field">
+            <label for="passwordTemporal">Contraseña temporal</label>
+            <p-password id="passwordTemporal" [(ngModel)]="passwordTemporalReset" [toggleMask]="true" [feedback]="false" placeholder="Mínimo 8 caracteres"></p-password>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="resetPasswordDialog = false"></button>
+          <button pButton pRipple label="Resetear" icon="pi pi-check" [loading]="reseteando" (click)="confirmarResetearPassword()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

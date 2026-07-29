@@ -1,0 +1,90 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+
+      <div class="surface-100 border-round p-3 mb-3">
+        <i class="pi pi-user-edit text-primary mr-2"></i>
+        Bitácora de solicitudes que un paciente presenta en persona para ejercer sus derechos sobre sus propios
+        datos: Acceso, Rectificación, Cancelación, Oposición o Portabilidad — conforme a la Ley Orgánica de
+        Protección de Datos Personales.
+      </div>
+
+      <p-panel header="Registrar Solicitud" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-6">
+            <label>Cédula del paciente</label>
+            <div class="p-inputgroup">
+              <input type="text" pInputText [(ngModel)]="busquedaCedula" placeholder="Ingrese la cédula" />
+              <button pButton pRipple label="Consultar" [loading]="buscando" (click)="buscarPaciente()"></button>
+            </div>
+            <small *ngIf="pacienteEncontrado" class="text-green-600">{{ pacienteEncontrado.nombres }} {{ pacienteEncontrado.apellidos }}</small>
+          </div>
+          <div class="field col-3">
+            <label>Tipo de solicitud</label>
+            <p-dropdown [(ngModel)]="solicitud.tipo_solicitud" [options]="tipoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+          <div class="field col-3">
+            <label>Fecha de la solicitud</label>
+            <input type="date" pInputText [(ngModel)]="solicitud.fecha_solicitud" />
+          </div>
+
+          <div class="field col-12">
+            <label>Descripción de lo que solicita el paciente</label>
+            <textarea pInputTextarea [(ngModel)]="solicitud.descripcion" rows="3" placeholder="Ej: solicita corregir su fecha de nacimiento"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-content-end">
+          <button pButton pRipple label="Registrar Solicitud" icon="pi pi-check" [loading]="guardando" (click)="registrarSolicitud()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Solicitudes Registradas" [toggleable]="true">
+        <p-table [value]="solicitudes" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_solicitud">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Paciente</th><th>Tipo</th><th>Fecha</th><th>Descripción</th>
+              <th class="text-center">Estado</th><th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.paciente?.nombres }} {{ datos.paciente?.apellidos }}</td>
+              <td>{{ datos.tipo_solicitud }}</td>
+              <td>{{ datos.fecha_solicitud }}</td>
+              <td style="max-width: 250px; white-space: normal;">{{ datos.descripcion }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado"
+                       [severity]="datos.estado === 'Resuelta' ? 'success' : (datos.estado === 'Rechazada' ? 'danger' : 'warning')"></p-tag>
+              </td>
+              <td class="text-center">
+                <button pButton pRipple label="Resolver" icon="pi pi-check" class="p-button-text p-button-sm"
+                        *ngIf="datos.estado === 'Pendiente' || datos.estado === 'En proceso'" (click)="abrirResolucion(datos)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="6" class="text-center">No hay solicitudes registradas.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+      <p-panel *ngIf="editando" header="Resolver Solicitud" [toggleable]="true" styleClass="mt-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-4">
+            <label>Estado</label>
+            <p-dropdown [(ngModel)]="editando.estado" [options]="estadoOptions" optionLabel="label" optionValue="value"></p-dropdown>
+          </div>
+          <div class="field col-8">
+            <label>Resolución</label>
+            <textarea pInputTextarea [(ngModel)]="editando.resolucion" rows="2" placeholder="Qué se resolvió y cómo"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="editando = null"></button>
+          <button pButton pRipple label="Guardar Resolución" icon="pi pi-check" (click)="guardarResolucion()"></button>
+        </div>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

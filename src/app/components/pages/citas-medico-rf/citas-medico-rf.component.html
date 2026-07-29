@@ -1,0 +1,86 @@
+<div class="grid">
+  <div class="col-12">
+    <p-toast></p-toast>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="grid mb-2">
+      <div class="col-12 md:col-3">
+        <div class="border-round p-3 text-white" style="background: #3F51B5;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-users"></i><strong>Pacientes Atendidos</strong></div>
+          <div class="flex justify-content-around text-center">
+            <div><div class="text-2xl font-bold">{{ estadisticas.totalH || 0 }}</div><small>HOMBRES</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.totalM || 0 }}</div><small>MUJERES</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="border-round p-3 text-white" style="background: #03A9F4;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-sync"></i><strong>Citas Agendadas</strong></div>
+          <div class="flex justify-content-around text-center">
+            <div><div class="text-2xl font-bold">{{ estadisticas.totalP || 0 }}</div><small>ATENDIDAS</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.totalC || 0 }}</div><small>PENDIENTES</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="border-round p-3 text-white" style="background: #5C6BC0;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-map-marker"></i><strong>Lugar de Atención</strong></div>
+          <div class="flex justify-content-around text-center">
+            <div><div class="text-2xl font-bold">{{ estadisticas.patronato || 0 }}</div><small>PATRONATO</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.domicilio || 0 }}</div><small>DOMICILIO</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="border-round p-3 text-white" style="background: #D84315;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-clock"></i><strong>Horas Laboradas</strong></div>
+          <div class="flex justify-content-around text-center">
+            <div><div class="text-2xl font-bold">{{ horasEstimadas }}</div><small>HORAS</small></div>
+            <div><div class="text-2xl font-bold">{{ minutosEstimados }}</div><small>MINUTOS</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <small class="text-500 block mb-3"><i class="pi pi-info-circle mr-1"></i>Horas laboradas es un estimado basado en la cantidad de consultas atendidas este mes (no hay registro de fichadas de entrada/salida).</small>
+
+    <!-- CITAS EN ESPERA -->
+    <div class="card px-4 py-4">
+      <p-panel header="Citas en espera" [toggleable]="true">
+        <div class="flex flex-wrap justify-content-between gap-3 mb-3">
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label>Fecha actual</label>
+              <input type="date" pInputText [(ngModel)]="fechaActual" (change)="cargarCitasDelDia()" />
+            </div>
+            <button pButton pRipple icon="pi pi-refresh" label="Actualizar" [loading]="cargandoCitas" (click)="cargarCitasDelDia()"></button>
+          </div>
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label>Buscar por Apellido</label>
+              <input type="text" pInputText [(ngModel)]="busquedaApellido" placeholder="Ingrese el apellido del paciente" (keyup)="aplicarBusqueda()" />
+            </div>
+            <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="aplicarBusqueda()"></button>
+          </div>
+        </div>
+
+        <p-table [value]="citasFiltradas" [loading]="cargandoCitas" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr><th>Nombres</th><th>Cédula</th><th>Hora</th><th>Antecedente</th><th class="text-center">Opciones</th></tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-c>
+            <tr>
+              <td>{{ c.nombres }}</td>
+              <td>{{ c.cedula }}</td>
+              <td>{{ c.turno?.hora }}</td>
+              <td><i class="pi pi-file text-primary" pTooltip="Vea el historial de este paciente en Historial de Consultas"></i></td>
+              <td class="text-center">
+                <a routerLink="/historia-clinica-rf" [queryParams]="{ cedula: c.cedula }" pButton pRipple icon="pi pi-arrow-right" label="Atender" class="p-button-sm p-button-success"></a>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="5" class="text-center">No hay citas en espera para esta fecha.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+  </div>
+</div>

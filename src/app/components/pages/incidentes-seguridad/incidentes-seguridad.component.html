@@ -1,0 +1,109 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+
+      <div class="surface-100 border-round p-3 mb-3">
+        <i class="pi pi-shield text-primary mr-2"></i>
+        Registro formal de cualquier evento que pueda comprometer la confidencialidad, integridad o disponibilidad
+        de los datos personales tratados por el sistema — conforme a la Ley Orgánica de Protección de Datos
+        Personales (notificación de vulneraciones de seguridad).
+      </div>
+
+      <p-panel header="Registrar Incidente" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-4">
+            <label>Fecha del incidente</label>
+            <input type="date" pInputText [(ngModel)]="incidente.fecha_incidente" />
+          </div>
+          <div class="field col-4">
+            <label>Tipo</label>
+            <p-dropdown [(ngModel)]="incidente.tipo" [options]="tipoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label>Estado</label>
+            <p-dropdown [(ngModel)]="incidente.estado" [options]="estadoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+
+          <div class="field col-12">
+            <label>Descripción de lo ocurrido</label>
+            <textarea pInputTextarea [(ngModel)]="incidente.descripcion" rows="3" placeholder="Qué pasó, cuándo se detectó, cómo"></textarea>
+          </div>
+          <div class="field col-12">
+            <label>Datos o registros afectados</label>
+            <textarea pInputTextarea [(ngModel)]="incidente.datos_afectados" rows="2" placeholder="Ej: 10 historias clínicas de Medicina General, IDs 1-10"></textarea>
+          </div>
+          <div class="field col-12">
+            <label>Acción tomada</label>
+            <textarea pInputTextarea [(ngModel)]="incidente.accion_tomada" rows="2" placeholder="Qué se hizo para resolverlo o contenerlo"></textarea>
+          </div>
+
+          <div class="field col-6 flex align-items-center gap-2 mt-2">
+            <p-checkbox [binary]="true" [(ngModel)]="incidente.notificado_autoridad" inputId="notifAutoridad"></p-checkbox>
+            <label for="notifAutoridad" class="m-0">Se notificó a la Superintendencia de Protección de Datos</label>
+          </div>
+          <div class="field col-6 flex align-items-center gap-2 mt-2">
+            <p-checkbox [binary]="true" [(ngModel)]="incidente.notificado_titulares" inputId="notifTitulares"></p-checkbox>
+            <label for="notifTitulares" class="m-0">Se notificó a los pacientes afectados (si aplica)</label>
+          </div>
+        </div>
+
+        <div class="flex justify-content-end">
+          <button pButton pRipple label="Registrar Incidente" icon="pi pi-check" [loading]="guardando" (click)="registrarIncidente()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Incidentes Registrados" [toggleable]="true">
+        <p-table [value]="incidentes" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_incidente">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Fecha</th><th>Tipo</th><th>Descripción</th><th class="text-center">Notificado</th>
+              <th class="text-center">Estado</th><th>Registrado por</th><th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.fecha_incidente }}</td>
+              <td>{{ datos.tipo }}</td>
+              <td style="max-width: 250px; white-space: normal;">{{ datos.descripcion }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.notificado_autoridad ? 'Sí' : 'No'" [severity]="datos.notificado_autoridad ? 'success' : 'warning'"></p-tag>
+              </td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado" [severity]="datos.estado === 'Cerrado' ? 'success' : (datos.estado === 'Abierto' ? 'danger' : 'warning')"></p-tag>
+              </td>
+              <td>{{ datos.cuenta?.nombres || '—' }}</td>
+              <td class="text-center">
+                <button pButton pRipple label="Actualizar" icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarEstado(datos)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center">No hay incidentes registrados.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+      <!-- Seguimiento de un incidente -->
+      <p-panel *ngIf="editando" header="Actualizar Seguimiento" [toggleable]="true" styleClass="mt-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-6">
+            <label>Estado</label>
+            <p-dropdown [(ngModel)]="editando.estado" [options]="estadoOptions" optionLabel="label" optionValue="value"></p-dropdown>
+          </div>
+          <div class="field col-6 flex align-items-center gap-2 mt-4">
+            <p-checkbox [binary]="true" [(ngModel)]="editando.notificado_autoridad" inputId="editNotifAutoridad"></p-checkbox>
+            <label for="editNotifAutoridad" class="m-0">Notificado a la autoridad</label>
+          </div>
+          <div class="field col-12">
+            <label>Acción tomada (actualizar)</label>
+            <textarea pInputTextarea [(ngModel)]="editando.accion_tomada" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="editando = null"></button>
+          <button pButton pRipple label="Guardar Seguimiento" icon="pi pi-check" (click)="guardarSeguimiento()"></button>
+        </div>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

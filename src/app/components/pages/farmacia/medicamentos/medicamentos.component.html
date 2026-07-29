@@ -1,0 +1,90 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Medicamentos</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="Nuevo Medicamento" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table [value]="medicamentos" responsiveLayout="scroll" [rows]="10"
+               [globalFilterFields]="['nombre','nombre_laboratorio','tipo_medicamentos']"
+               [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_medicamento">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Laboratorio</th>
+            <th>Descripción</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-datos>
+          <tr>
+            <td>{{ datos.nombre }}</td>
+            <td>{{ datos.tipo_medicamentos }}</td>
+            <td>{{ datos.nombre_laboratorio }}</td>
+            <td>{{ datos.descripcion }}</td>
+            <td class="text-center">
+              <p-tag [value]="datos.estado ? 'Activo' : 'Inactivo'" [severity]="datos.estado ? 'success' : 'danger'"></p-tag>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">No hay medicamentos registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="medicamentoDialog" [style]="{width:'550px'}" header="Nuevo Medicamento" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <div class="field">
+            <label for="nombreMed">Nombre</label>
+            <input type="text" pInputText id="nombreMed" [(ngModel)]="medicamento.nombre"
+                   [ngClass]="{'ng-invalid': submitted && !medicamento.nombre}" />
+            <small *ngIf="submitted && !medicamento.nombre" class="p-error">Requerido.</small>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label for="categoriaMed">Categoría</label>
+              <p-dropdown id="categoriaMed" [(ngModel)]="medicamento.id_categoriamedicamento" [options]="categorias"
+                          optionLabel="tipo" optionValue="id_categoriamedicamento" placeholder="Seleccionar"
+                          [ngClass]="{'ng-invalid': submitted && !medicamento.id_categoriamedicamento}"></p-dropdown>
+              <small *ngIf="submitted && !medicamento.id_categoriamedicamento" class="p-error">Requerido.</small>
+            </div>
+            <div class="field col-6">
+              <label for="laboratorioMed">Laboratorio</label>
+              <p-dropdown id="laboratorioMed" [(ngModel)]="medicamento.id_laboratorio" [options]="laboratorios"
+                          optionLabel="nombre" optionValue="id_laboratorio" placeholder="Seleccionar"
+                          [ngClass]="{'ng-invalid': submitted && !medicamento.id_laboratorio}"></p-dropdown>
+              <small *ngIf="submitted && !medicamento.id_laboratorio" class="p-error">Requerido.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="descripcionMed">Descripción</label>
+            <textarea pInputTextarea id="descripcionMed" [(ngModel)]="medicamento.descripcion" rows="2"></textarea>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarMedicamento()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

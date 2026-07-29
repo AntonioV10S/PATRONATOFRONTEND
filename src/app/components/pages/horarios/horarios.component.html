@@ -1,0 +1,79 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-panel [header]="editando ? 'Editar Turno' : 'Crear Turno'" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-3">
+            <label for="rolTurno">Especialidad</label>
+            <p-dropdown id="rolTurno" [(ngModel)]="turno.id_rol" [options]="roles" optionLabel="rol" optionValue="id_rol"
+                        placeholder="Seleccionar" [ngClass]="{'ng-invalid': submitted && !turno.id_rol}"></p-dropdown>
+          </div>
+          <div class="field col-3">
+            <label for="horaTurno">Hora</label>
+            <input type="time" pInputText id="horaTurno" [(ngModel)]="turno.hora"
+                   [ngClass]="{'ng-invalid': submitted && !turno.hora}" />
+          </div>
+          <div class="field col-3">
+            <label for="cuposTurno">Atenciones</label>
+            <p-inputNumber id="cuposTurno" [(ngModel)]="turno.amount" [min]="1" placeholder="Cantidad"></p-inputNumber>
+          </div>
+          <div class="field col-3">
+            <label for="estadoTurno">Estado</label>
+            <p-dropdown id="estadoTurno" [(ngModel)]="turno.estado"
+                        [options]="[{label:'Habilitado', value:true},{label:'Inhabilitado', value:false}]"
+                        optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" *ngIf="editando" (click)="openNew()"></button>
+          <button pButton pRipple [label]="editando ? 'Guardar Cambios' : 'Crear Turno'" icon="pi pi-check" [loading]="guardando" (click)="guardarTurno()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Turnos Registrados" [toggleable]="true">
+        <div class="flex justify-content-end mb-3">
+          <div class="p-inputgroup" style="max-width: 320px;">
+            <input type="text" pInputText placeholder="Escriba la hora" [(ngModel)]="busqueda" />
+            <button pButton pRipple icon="pi pi-search" label="Buscar"></button>
+          </div>
+        </div>
+
+        <p-table [value]="turnosFiltrados" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_turno">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Especialidad</th>
+              <th class="text-center">Hora</th>
+              <th class="text-center">Atenciones</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.rol?.rol || '—' }}</td>
+              <td class="text-center">{{ datos.hora }}</td>
+              <td class="text-center">{{ datos.amount }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado ? 'Habilitado' : 'Inhabilitado'" [severity]="datos.estado ? 'success' : 'danger'"></p-tag>
+              </td>
+              <td class="text-center">
+                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarTurno(datos)"></button>
+                <button pButton pRipple label="Eliminar" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="confirmarEliminar(datos)"></button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="5" class="text-center">No hay horarios configurados.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

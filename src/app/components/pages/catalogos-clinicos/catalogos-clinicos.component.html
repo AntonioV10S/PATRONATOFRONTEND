@@ -1,0 +1,134 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <h5 class="mb-4">Catálogos Clínicos</h5>
+
+      <p-tabView>
+
+        <!-- ENFERMEDADES -->
+        <p-tabPanel header="Enfermedades (Medicina General)">
+          <p-toolbar class="mb-4">
+            <ng-template pTemplate="right">
+              <button pButton pRipple label="Nueva Enfermedad" icon="pi pi-plus" class="p-button-success" (click)="openNewEnfermedad()"></button>
+            </ng-template>
+          </p-toolbar>
+
+          <p-table [value]="enfermedades" responsiveLayout="scroll" [rows]="10"
+                   [globalFilterFields]="['enfermedad','codigo_cie']"
+                   [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_enfermedad">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 8rem">Código CIE</th>
+                <th>Enfermedad</th>
+                <th>Tipo</th>
+                <th class="text-center" style="width: 8rem">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-datos>
+              <tr>
+                <td>{{ datos.codigo_cie || '—' }}</td>
+                <td>{{ datos.enfermedad }}</td>
+                <td>{{ datos.tipo_enfermedad || '—' }}</td>
+                <td>
+                  <div class="flex justify-content-center gap-2">
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning" (click)="editarEnfermedad(datos)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminarEnfermedad(datos)"></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="4" class="text-center">No hay enfermedades registradas en el catálogo.</td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+        <!-- DIAGNÓSTICOS -->
+        <p-tabPanel header="Diagnósticos (Rehabilitación Física)">
+          <p-toolbar class="mb-4">
+            <ng-template pTemplate="right">
+              <button pButton pRipple label="Nuevo Diagnóstico" icon="pi pi-plus" class="p-button-success" (click)="openNewDiagnostico()"></button>
+            </ng-template>
+          </p-toolbar>
+
+          <p-table [value]="diagnosticos" responsiveLayout="scroll" [rows]="10"
+                   [globalFilterFields]="['diagnostico','codigo_cie']"
+                   [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_diagnostico">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 8rem">Código CIE</th>
+                <th>Diagnóstico</th>
+                <th class="text-center" style="width: 8rem">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-datos>
+              <tr>
+                <td>{{ datos.codigo_cie || '—' }}</td>
+                <td>{{ datos.diagnostico }}</td>
+                <td>
+                  <div class="flex justify-content-center gap-2">
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning" (click)="editarDiagnostico(datos)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminarDiagnostico(datos)"></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="3" class="text-center">No hay diagnósticos registrados en el catálogo.</td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+      </p-tabView>
+
+      <!-- Diálogo Enfermedad -->
+      <p-dialog [(visible)]="enfermedadDialog" [style]="{width:'500px'}" header="Enfermedad" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="codigoCieEnf">Código CIE-10</label>
+            <input type="text" pInputText id="codigoCieEnf" [(ngModel)]="enfermedad.codigo_cie" placeholder="Ej: I10" />
+          </div>
+          <div class="field">
+            <label for="nombreEnf">Enfermedad</label>
+            <input type="text" pInputText id="nombreEnf" [(ngModel)]="enfermedad.enfermedad"
+                   [ngClass]="{'ng-invalid': submittedEnfermedad && !enfermedad.enfermedad}" />
+            <small *ngIf="submittedEnfermedad && !enfermedad.enfermedad" class="p-error">Requerido.</small>
+          </div>
+          <div class="field">
+            <label for="tipoEnf">Tipo (opcional)</label>
+            <input type="text" pInputText id="tipoEnf" [(ngModel)]="enfermedad.tipo_enfermedad" />
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="enfermedadDialog = false"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardandoEnfermedad" (click)="guardarEnfermedad()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Diálogo Diagnóstico -->
+      <p-dialog [(visible)]="diagnosticoDialog" [style]="{width:'500px'}" header="Diagnóstico" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="codigoCieDiag">Código CIE-10</label>
+            <input type="text" pInputText id="codigoCieDiag" [(ngModel)]="diagnostico.codigo_cie" placeholder="Ej: M54.5" />
+          </div>
+          <div class="field">
+            <label for="nombreDiag">Diagnóstico</label>
+            <input type="text" pInputText id="nombreDiag" [(ngModel)]="diagnostico.diagnostico"
+                   [ngClass]="{'ng-invalid': submittedDiagnostico && !diagnostico.diagnostico}" />
+            <small *ngIf="submittedDiagnostico && !diagnostico.diagnostico" class="p-error">Requerido.</small>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="diagnosticoDialog = false"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardandoDiagnostico" (click)="guardarDiagnostico()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

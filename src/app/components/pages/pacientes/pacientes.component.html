@@ -1,0 +1,196 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Pacientes</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <span class="p-input-icon-left mr-2">
+            <i class="pi pi-search"></i>
+            <input type="text" pInputText placeholder="Buscar por cédula exacta"
+                   [(ngModel)]="busquedaCedula" (keyup.enter)="buscarPorCedula()" />
+          </span>
+          <button pButton pRipple icon="pi pi-search" class="p-button-secondary mr-2" [loading]="buscando" (click)="buscarPorCedula()"></button>
+          <button pButton pRipple icon="pi pi-times" class="p-button-secondary mr-2" (click)="limpiarBusqueda()" pTooltip="Limpiar búsqueda"></button>
+          <button pButton pRipple label="Nuevo Paciente" icon="pi pi-plus" class="p-button-success" *ngIf="puedeEditar" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table
+        #dt
+        [value]="pacientes"
+        responsiveLayout="scroll"
+        [rows]="10"
+        [globalFilterFields]="['nombres','apellidos','cedula']"
+        [paginator]="true"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pacientes"
+        [rowHover]="true"
+        dataKey="id_paciente">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Cédula</th>
+            <th pSortableColumn="apellidos">Apellidos</th>
+            <th>Nombres</th>
+            <th class="text-center">Sexo</th>
+            <th class="text-center">Edad</th>
+            <th>Residencia</th>
+            <th class="text-center">GAD</th>
+            <th class="text-center" style="width: 10rem">Opciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-datos>
+          <tr>
+            <td>{{ datos.cedula }}</td>
+            <td>{{ datos.apellidos }}</td>
+            <td>{{ datos.nombres }}</td>
+            <td class="text-center">{{ datos.sexo }}</td>
+            <td class="text-center">{{ datos.edad }}</td>
+            <td>{{ datos.residencia || '—' }}</td>
+            <td class="text-center">
+              <p-tag [value]="datos.gad ? 'SI' : 'NO'" [severity]="datos.gad ? 'success' : 'secondary'"></p-tag>
+            </td>
+            <td>
+              <div class="flex justify-content-center gap-2">
+                <button pButton pRipple icon="pi pi-id-card" class="p-button-rounded p-button-secondary" pTooltip="Datos Paciente" *ngIf="!puedeEditar" (click)="verDatos(datos)"></button>
+                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-help" pTooltip="Imprimir aviso de privacidad" (click)="imprimirAvisoPrivacidad(datos)"></button>
+                <button pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-info" pTooltip="Consultas" *ngIf="rutaConsultas" (click)="irAConsultas(datos)"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning" *ngIf="puedeEditar" (click)="editarPaciente(datos)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" *ngIf="puedeEditar" (click)="confirmarEliminar(datos)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">No hay pacientes registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="pacienteDialog" [style]="{width:'750px'}" [header]="!puedeEditar ? 'Datos del Paciente' : (editando ? 'Editar Paciente' : 'Nuevo Paciente')" [modal]="true" class="p-fluid">
+
+        <ng-template pTemplate="content">
+          <p-tabView>
+
+            <p-tabPanel header="Datos Personales">
+              <div class="formgrid grid">
+                <div class="field col-6">
+                  <label for="nombres">Nombres</label>
+                  <input type="text" pInputText id="nombres" [(ngModel)]="paciente.nombres" required
+                         [ngClass]="{'ng-invalid': submitted && !paciente.nombres}" />
+                  <small *ngIf="submitted && !paciente.nombres" class="p-error">Requerido.</small>
+                </div>
+                <div class="field col-6">
+                  <label for="apellidos">Apellidos</label>
+                  <input type="text" pInputText id="apellidos" [(ngModel)]="paciente.apellidos" required
+                         [ngClass]="{'ng-invalid': submitted && !paciente.apellidos}" />
+                  <small *ngIf="submitted && !paciente.apellidos" class="p-error">Requerido.</small>
+                </div>
+
+                <div class="field col-6">
+                  <label for="cedula">Cédula</label>
+                  <input type="text" pInputText id="cedula" [(ngModel)]="paciente.cedula" required maxlength="10"
+                         [ngClass]="{'ng-invalid': submitted && !paciente.cedula}" />
+                  <small *ngIf="submitted && !paciente.cedula" class="p-error">Requerido.</small>
+                  <small class="block text-500 mt-1"><i class="pi pi-lock mr-1"></i>Se almacena cifrada (ECDH/AES-256-GCM).</small>
+                </div>
+                <div class="field col-6">
+                  <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                  <input type="date" pInputText id="fechaNacimiento" [(ngModel)]="paciente.fecha_nacimiento" required
+                         (change)="calcularEdad()"
+                         [ngClass]="{'ng-invalid': submitted && !paciente.fecha_nacimiento}" />
+                  <small *ngIf="submitted && !paciente.fecha_nacimiento" class="p-error">Requerido.</small>
+                </div>
+
+                <div class="field col-4">
+                  <label for="edad">Edad (calculada automáticamente)</label>
+                  <input type="text" pInputText id="edad" [(ngModel)]="paciente.edad" [readonly]="true" />
+                </div>
+                <div class="field col-4">
+                  <label for="sexo">Sexo</label>
+                  <p-dropdown id="sexo" [(ngModel)]="paciente.sexo" [options]="sexoOptions" optionLabel="label" optionValue="value"
+                              placeholder="Seleccionar" [ngClass]="{'ng-invalid': submitted && !paciente.sexo}"></p-dropdown>
+                  <small *ngIf="submitted && !paciente.sexo" class="p-error">Requerido.</small>
+                </div>
+                <div class="field col-4">
+                  <label for="estadoCivil">Estado Civil</label>
+                  <p-dropdown id="estadoCivil" [(ngModel)]="paciente.estado_civil" [options]="estadoCivilOptions" optionLabel="label" optionValue="value"
+                              placeholder="Seleccionar"></p-dropdown>
+                </div>
+
+                <div class="field col-6">
+                  <label for="raza">Raza / Etnia</label>
+                  <p-dropdown id="raza" [(ngModel)]="paciente.raza" [options]="razaOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+                </div>
+                <div class="field col-6">
+                  <label for="religion">Religión</label>
+                  <input type="text" pInputText id="religion" [(ngModel)]="paciente.religion" />
+                </div>
+              </div>
+            </p-tabPanel>
+
+            <p-tabPanel header="Contacto y Datos Sociales">
+              <div class="formgrid grid">
+                <div class="field col-6">
+                  <label for="telefono">Teléfono</label>
+                  <input type="text" pInputText id="telefono" [(ngModel)]="paciente.telefono" />
+                  <small class="block text-500 mt-1"><i class="pi pi-lock mr-1"></i>Se almacena cifrado.</small>
+                </div>
+                <div class="field col-6">
+                  <label for="email">Correo</label>
+                  <input type="email" pInputText id="email" [(ngModel)]="paciente.email" />
+                  <small class="block text-500 mt-1"><i class="pi pi-lock mr-1"></i>Se almacena cifrado.</small>
+                </div>
+
+                <div class="field col-6">
+                  <label for="ocupacion">Ocupación</label>
+                  <input type="text" pInputText id="ocupacion" [(ngModel)]="paciente.ocupacion" />
+                </div>
+                <div class="field col-6">
+                  <label for="nivelInstruccion">Nivel de Instrucción</label>
+                  <p-dropdown id="nivelInstruccion" [(ngModel)]="paciente.nivel_instruccion" [options]="nivelInstruccionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+                </div>
+
+                <div class="field col-6">
+                  <label for="residencia">Residencia</label>
+                  <input type="text" pInputText id="residencia" [(ngModel)]="paciente.residencia" />
+                </div>
+                <div class="field col-6">
+                  <label for="procedencia">Procedencia</label>
+                  <input type="text" pInputText id="procedencia" [(ngModel)]="paciente.procedencia" />
+                </div>
+
+                <div class="field col-8">
+                  <label for="grupoAtencion">Grupo de Atención Prioritaria</label>
+                  <p-dropdown id="grupoAtencion" [(ngModel)]="paciente.grupo_a_prioritaria" [options]="grupoAtencionOptions"
+                              optionLabel="label" optionValue="value" placeholder="Ninguno" [showClear]="true"></p-dropdown>
+                </div>
+                <div class="field col-4 flex align-items-center justify-content-between mt-4">
+                  <label for="gad">Pertenece al GAD</label>
+                  <p-inputSwitch id="gad" [(ngModel)]="paciente.gad"></p-inputSwitch>
+                </div>
+              </div>
+            </p-tabPanel>
+
+          </p-tabView>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <button pButton pRipple [label]="puedeEditar ? 'Cancelar' : 'Cerrar'" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" *ngIf="puedeEditar" [loading]="guardando" (click)="guardarPaciente()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

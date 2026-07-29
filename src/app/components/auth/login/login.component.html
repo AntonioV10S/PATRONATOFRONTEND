@@ -1,0 +1,46 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">
+        <div class="card_login">
+            <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:33px">
+                <div class="text-center mb-5">
+                    <img src="assets/municipio/logos/logo1.png" alt="Image" height="80" class="mb-3">
+                    <div class="text-900 text-3xl font-medium mb-3">Iniciar Sesión</div>
+                </div>
+
+                <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
+                    <div>
+                        <p-messages [value]="msgs"></p-messages>
+                        
+                        <div class="field p-fluid">
+                            <label for="email1" class="block text-900 text-xl font-medium mb-2">Correo Institucional</label>
+                            <input id="email1" type="text" [(ngModel)]="username" name="username" aria-describedby="username-help" pInputText [ngClass]="{'g-invalid': loginForm.submitted && !username}" required/>
+                            <small *ngIf="loginForm.submitted && !username" class="p-error">El correo es obligatorio</small>
+                        </div>
+
+                        <div class="field p-fluid">
+                            <label for="password" class="block text-900 text-xl font-medium mb-2">Contraseña</label>
+                            <input id="password" type="password" [(ngModel)]="password" name="password" pInputText [ngClass]="{'g-invalid': loginForm.submitted && !password}" required/>
+                            <small *ngIf="loginForm.submitted && !password" class="p-error">La contraseña es obligatoria</small>
+                        </div>
+                        
+                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                            <div class="flex align-items-center">
+                                <p-checkbox id="recuperar" [(ngModel)]="rememberMe" name="rememberMe" [binary]="true" styleClass="mr-2"></p-checkbox>
+                                <label for="recuperar">Recordar contraseña</label>
+                            </div>
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Recuperar contraseña?</a>
+                        </div>
+                        
+                        <button pButton label="Iniciar Sesión" icon="pi pi-sign-in" iconPos="right" class="w-full text-xl"></button>                        
+                        
+                    </div>                    
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="overlay"> 
+        <p-progressSpinner strokeWidth="5" fill="transparent" animationDuration="1s" [style]="{ width: '100px', height: '100px', color:'#fff' }"></p-progressSpinner>        
+    </div>
+
+</div>

@@ -1,0 +1,139 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+      <h5 class="mb-4">Mostrar Citas</h5>
+
+      <!-- MEDICINA GENERAL -->
+      <p-panel header="Citas de Medicina General" [toggleable]="true" styleClass="mb-3">
+        <div class="flex flex-wrap justify-content-between gap-3 mb-3">
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="fechaMG">Filtrar por Fecha</label>
+              <input type="date" pInputText id="fechaMG" [(ngModel)]="fechaFiltroMG" (change)="aplicarFiltros()" />
+            </div>
+            <button pButton pRipple icon="pi pi-refresh" label="Actualizar" (click)="cargarCitas()"></button>
+          </div>
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="cedMG">Buscar por Cédula</label>
+              <input type="text" pInputText id="cedMG" [(ngModel)]="cedulaBusquedaMG" placeholder="Escriba la cédula" (keyup.enter)="buscarMG()" />
+            </div>
+            <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="buscarMG()"></button>
+          </div>
+        </div>
+
+        <p-table [value]="citasMG" [loading]="cargando" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr><th>Nombres</th><th>Cédula</th><th>Fecha</th><th>Hora</th><th class="text-center">Historial</th><th class="text-center">Abonó</th><th class="text-center">Opciones</th></tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-c>
+            <tr>
+              <td>{{ c.nombres }}</td>
+              <td>{{ c.cedula }}</td>
+              <td>{{ c.fecha }}</td>
+              <td>{{ c.turno?.hora }}</td>
+              <td class="text-center"><i class="pi pi-file text-primary" pTooltip="Búsquelo en Historia Clínica por esta cédula"></i></td>
+              <td class="text-center"><p-tag [value]="c.abono ? 'Sí' : 'No'" [severity]="c.abono ? 'success' : 'secondary'"></p-tag></td>
+              <td>
+                <div class="flex justify-content-center gap-2">
+                  <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-success" pTooltip="Marcar atendida" (click)="marcarAtendida(c)"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminar(c)"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center">No hay citas para este filtro.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+      <!-- REHABILITACIÓN FÍSICA -->
+      <p-panel header="Citas de Rehabilitación Física" [toggleable]="true" styleClass="mb-3">
+        <div class="flex flex-wrap justify-content-between gap-3 mb-3">
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="fechaRF">Filtrar por Fecha</label>
+              <input type="date" pInputText id="fechaRF" [(ngModel)]="fechaFiltroRF" (change)="aplicarFiltros()" />
+            </div>
+            <button pButton pRipple icon="pi pi-refresh" label="Actualizar" (click)="cargarCitas()"></button>
+          </div>
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="cedRF">Buscar por Cédula</label>
+              <input type="text" pInputText id="cedRF" [(ngModel)]="cedulaBusquedaRF" placeholder="Escriba la cédula" (keyup.enter)="buscarRF()" />
+            </div>
+            <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="buscarRF()"></button>
+          </div>
+        </div>
+
+        <p-table [value]="citasRF" [loading]="cargando" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr><th>Nombres</th><th>Cédula</th><th>Fecha</th><th>Hora</th><th class="text-center">Historial</th><th class="text-center">Abonó</th><th class="text-center">Opciones</th></tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-c>
+            <tr>
+              <td>{{ c.nombres }}</td>
+              <td>{{ c.cedula }}</td>
+              <td>{{ c.fecha }}</td>
+              <td>{{ c.turno?.hora }}</td>
+              <td class="text-center"><i class="pi pi-file text-primary" pTooltip="Búsquelo en Historia Clínica por esta cédula"></i></td>
+              <td class="text-center"><p-tag [value]="c.abono ? 'Sí' : 'No'" [severity]="c.abono ? 'success' : 'secondary'"></p-tag></td>
+              <td>
+                <div class="flex justify-content-center gap-2">
+                  <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-success" pTooltip="Marcar atendida" (click)="marcarAtendida(c)"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminar(c)"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center">No hay citas para este filtro.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+      <!-- TERAPIA DE LENGUAJE -->
+      <p-panel header="Citas de Terapia de lenguaje" [toggleable]="true" styleClass="mb-3">
+        <div class="flex flex-wrap justify-content-between gap-3 mb-3">
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="fechaTL">Filtrar por Fecha</label>
+              <input type="date" pInputText id="fechaTL" [(ngModel)]="fechaFiltroTL" (change)="aplicarFiltros()" />
+            </div>
+            <button pButton pRipple icon="pi pi-refresh" label="Actualizar" (click)="cargarCitas()"></button>
+          </div>
+          <div class="flex align-items-end gap-2">
+            <div class="field mb-0">
+              <label for="cedTL">Buscar por Cédula</label>
+              <input type="text" pInputText id="cedTL" [(ngModel)]="cedulaBusquedaTL" placeholder="Escriba la cédula" (keyup.enter)="buscarTL()" />
+            </div>
+            <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="buscarTL()"></button>
+          </div>
+        </div>
+
+        <p-table [value]="citasTL" [loading]="cargando" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr><th>Nombres</th><th>Cédula</th><th>Fecha</th><th>Hora</th><th class="text-center">Historial</th><th class="text-center">Abonó</th><th class="text-center">Opciones</th></tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-c>
+            <tr>
+              <td>{{ c.nombres }}</td>
+              <td>{{ c.cedula }}</td>
+              <td>{{ c.fecha }}</td>
+              <td>{{ c.turno?.hora }}</td>
+              <td class="text-center"><i class="pi pi-file text-primary" pTooltip="Búsquelo en Historia Clínica por esta cédula"></i></td>
+              <td class="text-center"><p-tag [value]="c.abono ? 'Sí' : 'No'" [severity]="c.abono ? 'success' : 'secondary'"></p-tag></td>
+              <td>
+                <div class="flex justify-content-center gap-2">
+                  <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-success" pTooltip="Marcar atendida" (click)="marcarAtendida(c)"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminar(c)"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center">No hay citas para este filtro (esta especialidad todavía no tiene horarios configurados).</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

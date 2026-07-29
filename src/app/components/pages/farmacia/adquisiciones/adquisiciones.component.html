@@ -1,0 +1,83 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+
+      <p-panel header="Registros de Adquisiciones" [toggleable]="true">
+        <div class="flex justify-content-end mb-3">
+          <div class="p-inputgroup" style="max-width: 340px;">
+            <input type="text" pInputText placeholder="Ingresar Nombre o código Adquisición" [(ngModel)]="busqueda" />
+            <button pButton pRipple icon="pi pi-search" label="Buscar"></button>
+          </div>
+        </div>
+
+        <p-table [value]="adquisicionesFiltradas" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_adquisicion">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Nombre</th>
+              <th class="text-center">Precio Total</th>
+              <th class="text-center">Documento</th>
+              <th class="text-center">Fecha Adquisición</th>
+              <th class="text-center">Fecha Registro sis</th>
+              <th class="text-center">Tipo</th>
+              <th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.numeroadqui }}</td>
+              <td class="text-center">{{ datos.precioadqui | currency }}</td>
+              <td class="text-center">
+                <a *ngIf="datos.documento" href="javascript:void(0)" (click)="verDocumento(datos.documento)">Documento</a>
+                <span *ngIf="!datos.documento" class="text-500">—</span>
+              </td>
+              <td class="text-center">{{ datos.fechaadqui }}</td>
+              <td class="text-center">{{ datos.fecharegadqui }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.tipoadqui ? 'Compra' : 'Donativo'" [severity]="datos.tipoadqui ? 'success' : 'info'"></p-tag>
+              </td>
+              <td class="text-center">
+                <a href="javascript:void(0)" (click)="verDetalle(datos)">Detalles de Adquisición</a>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="7" class="text-center">No hay adquisiciones registradas.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+
+      <!-- Detalle de adquisición: solo lectura -->
+      <p-dialog [(visible)]="detalleDialog" [style]="{width:'700px'}" header="Detalles de Adquisición" [modal]="true">
+        <ng-template pTemplate="content">
+          <p><strong>N° / Código:</strong> {{ adquisicionActiva?.numeroadqui }}</p>
+          <p><strong>Descripción:</strong> {{ adquisicionActiva?.descripcionadqui || '—' }}</p>
+          <p><strong>Tipo:</strong> {{ adquisicionActiva?.tipoadqui ? 'Compra' : 'Donativo' }}</p>
+          <p><strong>Precio total:</strong> {{ adquisicionActiva?.precioadqui | currency }}</p>
+
+          <p-table [value]="detallesDeAdquisicion" responsiveLayout="scroll" class="mt-3">
+            <ng-template pTemplate="header">
+              <tr><th>Medicamento</th><th class="text-center">Cantidad</th><th class="text-center">Valor Uni.</th><th class="text-center">Fecha Exp.</th></tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-d>
+              <tr>
+                <td>{{ d.nombre_medicamento }}</td>
+                <td class="text-center">{{ d.cantidadmedicamentos }}</td>
+                <td class="text-center">{{ d.valoruni | currency }}</td>
+                <td class="text-center">{{ d.fechaexp }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage"><tr><td colspan="4" class="text-center">Sin medicamentos registrados en esta adquisición.</td></tr></ng-template>
+          </p-table>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="detalleDialog = false"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

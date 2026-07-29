@@ -1,0 +1,52 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="">
+        <img src="assets/layout/images/LOGO_JUNIN.png" alt="logo">
+        <!-- <span>Jun&iacute;n</span> -->
+    </a>
+
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <!-- <button class="p-link layout-topbar-button">
+            <i class="pi pi-calendar"></i>
+            <span>Calendar</span>
+        </button> -->
+        <button class="p-link layout-topbar-button" (click)="abrirMiPerfil()">
+            <i class="pi pi-user"></i>
+            <span>{{ nombreUsuario }}</span>
+        </button>
+        <button class="p-link layout-topbar-button" (click)="cerrarSesion()">
+            <i class="pi pi-sign-out"></i>
+            <span>Cerrar sesión</span>
+        </button>
+    </div>
+</div>
+
+<p-toast></p-toast>
+
+<p-dialog [(visible)]="miPerfilDialog" [style]="{width:'420px'}" header="Cambiar mi contraseña" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="passwordActualTopbar">Contraseña actual</label>
+            <p-password id="passwordActualTopbar" [(ngModel)]="passwordActual" [toggleMask]="true" [feedback]="false"></p-password>
+        </div>
+        <div class="field">
+            <label for="passwordNuevaTopbar">Nueva contraseña</label>
+            <p-password id="passwordNuevaTopbar" [(ngModel)]="passwordNueva" [toggleMask]="true" placeholder="Mínimo 8 caracteres"></p-password>
+        </div>
+        <div class="field">
+            <label for="passwordConfirmarTopbar">Confirmar nueva contraseña</label>
+            <p-password id="passwordConfirmarTopbar" [(ngModel)]="passwordConfirmar" [toggleMask]="true" [feedback]="false"></p-password>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="miPerfilDialog = false"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardandoPassword" (click)="cambiarPassword()"></button>
+    </ng-template>
+</p-dialog>

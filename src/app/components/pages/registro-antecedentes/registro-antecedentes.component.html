@@ -1,0 +1,335 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <h5 class="mb-4">Registro de Antecedentes del Paciente</h5>
+
+      <div class="flex align-items-end gap-2 mb-4">
+        <div class="field mb-0" style="min-width: 260px;">
+          <label for="cedulaBuscar">Cédula del paciente</label>
+          <input type="text" pInputText id="cedulaBuscar" [(ngModel)]="busquedaCedula"
+                 (keyup.enter)="buscarPaciente()" placeholder="Ej: 1312345678" />
+        </div>
+        <button pButton pRipple label="Buscar" icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+      </div>
+
+      <div *ngIf="pacienteActivo" class="surface-100 border-round p-3 mb-4">
+        <strong>{{ pacienteActivo.apellidos }} {{ pacienteActivo.nombres }}</strong>
+        — Edad: {{ pacienteActivo.edad }} — Sexo: {{ pacienteActivo.sexo }}
+      </div>
+
+      <p-tabView *ngIf="pacienteActivo">
+
+        <!-- 1. ANTECEDENTES PATOLÓGICOS PERSONALES -->
+        <p-tabPanel header="Patológicos Personales">
+          <div class="formgrid grid p-fluid">
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinInfancia" inputId="sinInfancia"></p-checkbox>
+                <label for="sinInfancia">Sin antecedentes en la niñez</label>
+              </div>
+              <textarea *ngIf="!sinInfancia" pInputTextarea [(ngModel)]="personal.infancia" rows="2" placeholder="Descripción de antecedentes en la niñez..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinAdolescencia" inputId="sinAdolescencia"></p-checkbox>
+                <label for="sinAdolescencia">Sin antecedentes en la adolescencia</label>
+              </div>
+              <textarea *ngIf="!sinAdolescencia" pInputTextarea [(ngModel)]="personal.adolecencia" rows="2" placeholder="Descripción de antecedentes en la adolescencia..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinAdultez" inputId="sinAdultez"></p-checkbox>
+                <label for="sinAdultez">Sin antecedentes en la adultez</label>
+              </div>
+              <textarea *ngIf="!sinAdultez" pInputTextarea [(ngModel)]="personal.adultez" rows="2" placeholder="Descripción de antecedentes en la adultez..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinQuirurgicos" inputId="sinQuirurgicos"></p-checkbox>
+                <label for="sinQuirurgicos">Sin antecedentes quirúrgicos</label>
+              </div>
+              <textarea *ngIf="!sinQuirurgicos" pInputTextarea [(ngModel)]="personal.quirujircos" rows="2" placeholder="Cirugías previas..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinAlergias" inputId="sinAlergias"></p-checkbox>
+                <label for="sinAlergias">Sin alergias conocidas</label>
+              </div>
+              <textarea *ngIf="!sinAlergias" pInputTextarea [(ngModel)]="personal.alergias" rows="2" placeholder="Alergias conocidas..."></textarea>
+              <small class="text-500"><i class="pi pi-lock mr-1"></i>Se guarda cifrado.</small>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinTraumas" inputId="sinTraumas"></p-checkbox>
+                <label for="sinTraumas">Sin traumatismos previos</label>
+              </div>
+              <textarea *ngIf="!sinTraumas" pInputTextarea [(ngModel)]="personal.traumas" rows="2" placeholder="Traumatismos previos..."></textarea>
+              <small class="text-500"><i class="pi pi-lock mr-1"></i>Se guarda cifrado.</small>
+            </div>
+
+            <div class="field col-4">
+              <label>DBID (Discapacidad)</label>
+              <div class="flex align-items-center gap-2 mt-2">
+                <p-inputSwitch [(ngModel)]="personal.DBID"></p-inputSwitch>
+                <span>{{ personal.DBID ? 'Sí' : 'No' }}</span>
+              </div>
+            </div>
+            <div class="field col-4">
+              <label>HTA (Hipertensión Arterial)</label>
+              <div class="flex align-items-center gap-2 mt-2">
+                <p-inputSwitch [(ngModel)]="personal.HTA"></p-inputSwitch>
+                <span>{{ personal.HTA ? 'Sí' : 'No' }}</span>
+              </div>
+            </div>
+            <div class="field col-4">
+              <label>TbP (Tuberculosis Pulmonar)</label>
+              <div class="flex align-items-center gap-2 mt-2">
+                <p-inputSwitch [(ngModel)]="personal.TbP"></p-inputSwitch>
+                <span>{{ personal.TbP ? 'Sí' : 'No' }}</span>
+              </div>
+            </div>
+            <div class="field col-4">
+              <label>DBI (Diabetes)</label>
+              <div class="flex align-items-center gap-2 mt-2">
+                <p-inputSwitch [(ngModel)]="personal.DBI"></p-inputSwitch>
+                <span>{{ personal.DBI ? 'Sí' : 'No' }}</span>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button pButton pRipple label="Guardar Antecedentes Personales" icon="pi pi-check" [loading]="guardandoPersonal" (click)="guardarPersonal()"></button>
+              <small *ngIf="idGinecoCreado" class="block text-green-600 mt-2"><i class="pi pi-check mr-1"></i>Se vinculará con los antecedentes gineco-obstétricos ya guardados.</small>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- 2. GINECO-OBSTÉTRICOS -->
+        <p-tabPanel header="Gineco-Obstétricos">
+          <div *ngIf="!esFemenino" class="surface-100 border-round p-3 text-500">
+            <i class="pi pi-info-circle mr-2"></i>No aplica según el sexo registrado del paciente. Puede completarse igualmente si es necesario.
+          </div>
+          <div class="formgrid grid p-fluid mt-3">
+            <div class="field col-6">
+              <label for="fum">FUM (Fecha última menstruación)</label>
+              <input type="date" pInputText id="fum" [(ngModel)]="gineco.FUM" />
+            </div>
+            <div class="field col-6">
+              <label for="fpp">FPP (Fecha probable de parto)</label>
+              <input type="date" pInputText id="fpp" [(ngModel)]="gineco.FPP" />
+            </div>
+            <div class="field col-6">
+              <label for="edadGestional">Edad gestacional</label>
+              <input type="text" pInputText id="edadGestional" [(ngModel)]="gineco.edad_gestional" />
+            </div>
+            <div class="field col-6">
+              <label for="menarquia">Menarquia</label>
+              <input type="text" pInputText id="menarquia" [(ngModel)]="gineco.menarquia" />
+            </div>
+            <div class="field col-12">
+              <label for="flujoGenital">Flujo genital</label>
+              <input type="text" pInputText id="flujoGenital" [(ngModel)]="gineco.flujo_genital" />
+            </div>
+            <div class="field col-3">
+              <label for="gestas">Gestas</label>
+              <input type="text" pInputText id="gestas" [(ngModel)]="gineco.gestas" />
+            </div>
+            <div class="field col-3">
+              <label for="partos">Partos</label>
+              <input type="text" pInputText id="partos" [(ngModel)]="gineco.partos" />
+            </div>
+            <div class="field col-3">
+              <label for="cesareas">Cesáreas</label>
+              <input type="text" pInputText id="cesareas" [(ngModel)]="gineco.cesareas" />
+            </div>
+            <div class="field col-3">
+              <label for="abortos">Abortos</label>
+              <input type="text" pInputText id="abortos" [(ngModel)]="gineco.abortos" />
+            </div>
+            <div class="col-12">
+              <button pButton pRipple label="Guardar Gineco-Obstétricos" icon="pi pi-check" [loading]="guardandoGineco" (click)="guardarGineco()"></button>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- 3. FAMILIARES -->
+        <p-tabPanel header="Antecedentes Familiares">
+          <p-table [value]="familiares" responsiveLayout="scroll" class="mb-4">
+            <ng-template pTemplate="header">
+              <tr><th>Nombre</th><th>Parentesco</th><th class="text-center">Vive</th><th>Causa (si falleció)</th><th></th></tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-fam>
+              <tr>
+                <td>{{ fam.nombres }}</td>
+                <td>{{ fam.union }}</td>
+                <td class="text-center">
+                  <p-tag [value]="fam.vida ? 'Vive' : 'Falleció'" [severity]="fam.vida ? 'success' : 'danger'"></p-tag>
+                </td>
+                <td>{{ fam.vida ? '—' : fam.causas }}</td>
+                <td><button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="eliminarFamiliar(fam)"></button></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="5" class="text-center">Sin familiares registrados.</td></tr>
+            </ng-template>
+          </p-table>
+
+          <h6>Agregar familiar</h6>
+          <div class="formgrid grid p-fluid">
+            <div class="field col-4">
+              <label for="nombreFamiliar">Nombre</label>
+              <input type="text" pInputText id="nombreFamiliar" [(ngModel)]="nuevoFamiliar.nombres" />
+            </div>
+            <div class="field col-3">
+              <label for="parentescoFamiliar">Parentesco</label>
+              <p-dropdown id="parentescoFamiliar" [(ngModel)]="nuevoFamiliar.union" [options]="relacionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+            </div>
+            <div class="field col-2 flex align-items-center justify-content-between mt-4">
+              <label>Vive</label>
+              <p-inputSwitch [(ngModel)]="nuevoFamiliar.vida"></p-inputSwitch>
+            </div>
+            <div class="field col-3">
+              <label for="causaFamiliar">Causa (si falleció)</label>
+              <input type="text" pInputText id="causaFamiliar" [(ngModel)]="nuevoFamiliar.causas" [disabled]="!!nuevoFamiliar.vida" />
+            </div>
+          </div>
+          <button pButton pRipple label="Agregar Familiar" icon="pi pi-plus" class="p-button-success" [loading]="guardandoFamiliar" (click)="agregarFamiliar()"></button>
+        </p-tabPanel>
+
+        <!-- 4. HÁBITOS -->
+        <p-tabPanel header="Hábitos">
+          <div class="formgrid grid p-fluid">
+            <div class="field col-6">
+              <label for="alcohol">Alcohol</label>
+              <input type="text" pInputText id="alcohol" [(ngModel)]="habito.alcohol" placeholder="Ej: Ocasional, No consume..." />
+            </div>
+            <div class="field col-6">
+              <label for="tabaco">Tabaco</label>
+              <input type="text" pInputText id="tabaco" [(ngModel)]="habito.tabaco" />
+            </div>
+            <div class="field col-6">
+              <label for="drogas">Drogas</label>
+              <input type="text" pInputText id="drogas" [(ngModel)]="habito.drogas" />
+            </div>
+            <div class="field col-6">
+              <label for="alimentacion">Alimentación</label>
+              <input type="text" pInputText id="alimentacion" [(ngModel)]="habito.alimentacion" />
+            </div>
+            <div class="field col-6">
+              <label for="diuresis">Diuresis</label>
+              <input type="text" pInputText id="diuresis" [(ngModel)]="habito.diuresis" />
+            </div>
+            <div class="field col-6">
+              <label for="somnia">Sueño</label>
+              <input type="text" pInputText id="somnia" [(ngModel)]="habito.somnia" />
+            </div>
+            <div class="col-12">
+              <button pButton pRipple label="Guardar Hábitos" icon="pi pi-check" [loading]="guardandoHabito" (click)="guardarHabito()"></button>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- 5. EXAMEN FÍSICO GENERAL -->
+        <p-tabPanel header="Examen Físico General">
+          <div class="formgrid grid p-fluid">
+            <div class="field col-6">
+              <label for="cabeza">Cabeza</label>
+              <textarea pInputTextarea id="cabeza" [(ngModel)]="examenFisico.cabeza" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="cuello">Cuello</label>
+              <textarea pInputTextarea id="cuello" [(ngModel)]="examenFisico.cuello" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="torax">Tórax</label>
+              <textarea pInputTextarea id="torax" [(ngModel)]="examenFisico.torax" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="abdomen">Abdomen</label>
+              <textarea pInputTextarea id="abdomen" [(ngModel)]="examenFisico.abdomen" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="msuperiores">Miembros Superiores</label>
+              <textarea pInputTextarea id="msuperiores" [(ngModel)]="examenFisico.miembros_superiores" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="minferiores">Miembros Inferiores</label>
+              <textarea pInputTextarea id="minferiores" [(ngModel)]="examenFisico.miembros_inferiores" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="regionGenital">Región Genital</label>
+              <textarea pInputTextarea id="regionGenital" [(ngModel)]="examenFisico.region_genital" rows="2"></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="regionAnal">Región Anal</label>
+              <textarea pInputTextarea id="regionAnal" [(ngModel)]="examenFisico.region_anal" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <button pButton pRipple label="Guardar Examen Físico" icon="pi pi-check" [loading]="guardandoExamenFisico" (click)="guardarExamenFisico()"></button>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- 6. EXAMEN POR ÓRGANOS Y SISTEMAS -->
+        <p-tabPanel header="Examen por Órganos y Sistemas">
+          <div class="formgrid grid p-fluid">
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinDigestivo" inputId="sinDigestivo"></p-checkbox>
+                <label for="sinDigestivo">Sistema digestivo sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinDigestivo" pInputTextarea [(ngModel)]="organoSistema.sistema_digestivo" rows="2"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinRespiratorio" inputId="sinRespiratorio"></p-checkbox>
+                <label for="sinRespiratorio">Sistema respiratorio sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinRespiratorio" pInputTextarea [(ngModel)]="organoSistema.sistema_respiratorio" rows="2"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinCardiaco" inputId="sinCardiaco"></p-checkbox>
+                <label for="sinCardiaco">Sistema cardíaco sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinCardiaco" pInputTextarea [(ngModel)]="organoSistema.sistema_cardiaco" rows="2"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinGenitourinario" inputId="sinGenitourinario"></p-checkbox>
+                <label for="sinGenitourinario">Sistema genitourinario sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinGenitourinario" pInputTextarea [(ngModel)]="organoSistema.sistema_genitourinarion" rows="2"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinOsteomuscular" inputId="sinOsteomuscular"></p-checkbox>
+                <label for="sinOsteomuscular">Sistema osteomuscular sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinOsteomuscular" pInputTextarea [(ngModel)]="organoSistema.sistema_osteomuscular" rows="2"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="flex align-items-center gap-2 mb-2">
+                <p-checkbox [binary]="true" [(ngModel)]="sinNervioso" inputId="sinNervioso"></p-checkbox>
+                <label for="sinNervioso">Sistema nervioso sin alteraciones</label>
+              </div>
+              <textarea *ngIf="!sinNervioso" pInputTextarea [(ngModel)]="organoSistema.sistema_nervioso" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <button pButton pRipple label="Guardar Examen por Sistemas" icon="pi pi-check" [loading]="guardandoOrganoSistema" (click)="guardarOrganoSistema()"></button>
+            </div>
+          </div>
+        </p-tabPanel>
+
+      </p-tabView>
+
+      <div *ngIf="!pacienteActivo" class="text-center text-500 py-6">
+        Busque un paciente por cédula para registrar sus antecedentes.
+      </div>
+
+    </div>
+  </div>
+</div>

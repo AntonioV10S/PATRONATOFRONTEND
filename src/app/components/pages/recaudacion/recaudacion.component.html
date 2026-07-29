@@ -1,0 +1,120 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Recaudación</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="Nueva Recaudación" icon="pi pi-plus" class="p-button-success" *ngIf="permiteCrearManual" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <div class="surface-100 border-round p-3 mb-4">
+        <strong>Total recaudado (sin exonerados):</strong> {{ totalRecaudado | currency }}
+        <small class="block text-500 mt-1"><i class="pi pi-lock mr-1"></i>El valor de cada registro se almacena cifrado (AES-256-GCM).</small>
+      </div>
+
+      <p-table [value]="recaudaciones" responsiveLayout="scroll" [rows]="10"
+               [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_recaudacion">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-center">Fecha</th>
+            <th>Paciente</th>
+            <th>Servicio</th>
+            <th class="text-center">Valor</th>
+            <th class="text-center">Exonerado</th>
+            <th>Observaciones</th>
+            <th class="text-center" style="width: 6rem">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-datos>
+          <tr>
+            <td class="text-center">{{ datos.fecha }}</td>
+            <td>{{ datos.paciente?.apellidos }} {{ datos.paciente?.nombres }}</td>
+            <td>{{ datos.rol?.rol }}</td>
+            <td class="text-center">{{ datos.exonera ? '—' : (datos.valor | currency) }}</td>
+            <td class="text-center">
+              <p-tag *ngIf="datos.exonera" value="Exonerado" severity="info"></p-tag>
+              <span *ngIf="!datos.exonera">—</span>
+            </td>
+            <td>{{ datos.observaciones }}</td>
+            <td>
+              <div class="flex justify-content-center">
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" *ngIf="permiteCrearManual" (click)="confirmarEliminar(datos)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center">No hay recaudaciones registradas.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="recaudacionDialog" [style]="{width:'550px'}" header="Nueva Recaudación" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <div class="field">
+            <label for="cedulaRecaudacion">Cédula del paciente</label>
+            <div class="p-inputgroup">
+              <input type="text" pInputText id="cedulaRecaudacion" [(ngModel)]="busquedaCedula" />
+              <button pButton pRipple icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+            </div>
+            <small *ngIf="pacienteEncontrado" class="block text-green-600 mt-1">
+              <i class="pi pi-check mr-1"></i>{{ pacienteEncontrado.apellidos }} {{ pacienteEncontrado.nombres }}
+            </small>
+            <small *ngIf="submitted && !recaudacion.id_paciente" class="p-error">Debe buscar y seleccionar un paciente registrado.</small>
+          </div>
+
+          <div class="field">
+            <label for="servicioRecaudacion">Servicio / Especialidad</label>
+            <p-dropdown id="servicioRecaudacion" [(ngModel)]="recaudacion.id_rol" [options]="roles"
+                        optionLabel="rol" optionValue="id_rol" placeholder="Seleccionar"
+                        [ngClass]="{'ng-invalid': submitted && !recaudacion.id_rol}"></p-dropdown>
+            <small *ngIf="submitted && !recaudacion.id_rol" class="p-error">Requerido.</small>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label for="fechaRecaudacion">Fecha</label>
+              <input type="date" pInputText id="fechaRecaudacion" [(ngModel)]="recaudacion.fecha"
+                     [ngClass]="{'ng-invalid': submitted && !recaudacion.fecha}" />
+              <small *ngIf="submitted && !recaudacion.fecha" class="p-error">Requerido.</small>
+            </div>
+            <div class="field col-6 flex align-items-center justify-content-between mt-4">
+              <label for="exoneraRecaudacion">Exonerado</label>
+              <p-inputSwitch id="exoneraRecaudacion" [(ngModel)]="recaudacion.exonera"></p-inputSwitch>
+            </div>
+          </div>
+
+          <div class="field" *ngIf="!recaudacion.exonera">
+            <label for="valorRecaudacion">Valor cobrado</label>
+            <p-inputNumber id="valorRecaudacion" [(ngModel)]="recaudacion.valor" mode="currency" currency="USD" locale="en-US"
+                           [ngClass]="{'ng-invalid': submitted && recaudacion.valor == null}"></p-inputNumber>
+            <small *ngIf="submitted && recaudacion.valor == null" class="p-error">Requerido si no está exonerado.</small>
+          </div>
+
+          <div class="field">
+            <label for="observacionesRecaudacion">Observaciones</label>
+            <input type="text" pInputText id="observacionesRecaudacion" [(ngModel)]="recaudacion.observaciones" />
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarRecaudacion()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

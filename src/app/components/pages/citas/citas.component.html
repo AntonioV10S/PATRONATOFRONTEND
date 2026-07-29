@@ -1,0 +1,123 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Citas</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="Nueva Cita" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table
+        #dt
+        [value]="citas"
+        responsiveLayout="scroll"
+        [rows]="10"
+        [globalFilterFields]="['nombres','cedula']"
+        [paginator]="true"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas"
+        [rowHover]="true"
+        dataKey="id_cita">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Fecha</th>
+            <th class="text-center">Hora</th>
+            <th>Especialidad</th>
+            <th>Paciente</th>
+            <th>Cédula</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center" style="width: 10rem">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-datos>
+          <tr>
+            <td>{{ datos.fecha }}</td>
+            <td class="text-center">{{ datos.turno?.hora || '—' }}</td>
+            <td>{{ datos.turno?.rol?.rol || '—' }}</td>
+            <td>{{ datos.nombres }}</td>
+            <td>{{ datos.cedula }}</td>
+            <td class="text-center">
+              <p-tag [value]="datos.estado == 1 ? 'Atendido' : 'Pendiente'" [severity]="datos.estado == 1 ? 'success' : 'warning'"></p-tag>
+            </td>
+            <td>
+              <div class="flex justify-content-center gap-2">
+                <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-success" pTooltip="Marcar como atendida" (click)="marcarAtendida(datos)"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning" (click)="editarCita(datos)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="confirmarEliminar(datos)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center">No hay citas registradas.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="citaDialog" [style]="{width:'550px'}" [header]="editando ? 'Editar Cita' : 'Nueva Cita'" [modal]="true" class="p-fluid">
+
+        <ng-template pTemplate="content">
+
+          <div class="field">
+            <label for="cedulaCita">Cédula del paciente</label>
+            <div class="p-inputgroup">
+              <input type="text" pInputText id="cedulaCita" [(ngModel)]="cedula" [ngClass]="{'ng-invalid': submitted && !cedula}" />
+              <button pButton pRipple icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+            </div>
+            <small *ngIf="submitted && !cedula" class="p-error">Requerido.</small>
+          </div>
+
+          <div class="field">
+            <label for="nombresCita">Nombres completos</label>
+            <input type="text" pInputText id="nombresCita" [(ngModel)]="nombres" [ngClass]="{'ng-invalid': submitted && !nombres}" />
+            <small *ngIf="submitted && !nombres" class="p-error">Requerido.</small>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label for="especialidadCita">Especialidad</label>
+              <p-dropdown id="especialidadCita" [(ngModel)]="especialidadSeleccionada" [options]="especialidades"
+                          optionLabel="rol" optionValue="rol" placeholder="Seleccionar" (onChange)="cargarTurnos()"></p-dropdown>
+            </div>
+            <div class="field col-6">
+              <label for="fechaCita">Fecha</label>
+              <input type="date" pInputText id="fechaCita" [(ngModel)]="fecha" (change)="cargarTurnos()" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="turnoCita">Horario disponible</label>
+            <p-dropdown id="turnoCita" [(ngModel)]="idTurnoSeleccionado" [options]="turnosDisponibles" [loading]="cargandoTurnos"
+                        optionLabel="hora" optionValue="id_turno" placeholder="Seleccione especialidad y fecha primero"
+                        [ngClass]="{'ng-invalid': submitted && !idTurnoSeleccionado}"></p-dropdown>
+            <small *ngIf="submitted && !idTurnoSeleccionado" class="p-error">Debe seleccionar un horario.</small>
+          </div>
+
+          <div class="field-checkbox">
+            <p-checkbox [binary]="true" [(ngModel)]="abono" inputId="abonoCita"></p-checkbox>
+            <label for="abonoCita" class="ml-2">Registra abono</label>
+          </div>
+
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarCita()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

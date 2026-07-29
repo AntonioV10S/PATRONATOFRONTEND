@@ -1,0 +1,94 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Exámenes Complementarios (Laboratorio)</h5>
+        </ng-template>
+      </p-toolbar>
+
+      <div class="flex align-items-end gap-2 mb-4">
+        <div class="field mb-0" style="min-width: 260px;">
+          <label for="cedulaBuscar">Cédula del paciente</label>
+          <input type="text" pInputText id="cedulaBuscar" [(ngModel)]="busquedaCedula"
+                 (keyup.enter)="buscarPaciente()" placeholder="Ej: 1312345678" />
+        </div>
+        <button pButton pRipple label="Buscar" icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+      </div>
+
+      <div *ngIf="pacienteActivo" class="surface-100 border-round p-3 mb-4">
+        <strong>{{ pacienteActivo.apellidos }} {{ pacienteActivo.nombres }}</strong>
+        — Edad: {{ pacienteActivo.edad }} — Sexo: {{ pacienteActivo.sexo }}
+      </div>
+
+      <div *ngIf="pacienteActivo && cargandoExamen" class="text-center py-4">
+        <i class="pi pi-spin pi-spinner text-3xl"></i>
+      </div>
+
+      <div *ngIf="pacienteActivo && !cargandoExamen">
+
+        <div class="surface-100 border-round p-3 mb-4">
+          <i class="pi pi-lock text-primary mr-2"></i>
+          Los resultados de laboratorio, electrocardiograma y radiografía se cifran (ECDH) antes de guardarse.
+        </div>
+
+        <!-- Solo lectura -->
+        <div *ngIf="!modoEdicion" class="formgrid grid">
+          <div class="field col-12">
+            <label class="font-bold block">Laboratorio</label>
+            <p>{{ examenExistente?.laboratorio || '— Sin registrar —' }}</p>
+          </div>
+          <div class="field col-12">
+            <label class="font-bold block">Electrocardiograma</label>
+            <p>{{ examenExistente?.electrocardiograma || '— Sin registrar —' }}</p>
+          </div>
+          <div class="field col-12">
+            <label class="font-bold block">Radiografía de Tórax</label>
+            <p>{{ examenExistente?.radiografia_torax || '— Sin registrar —' }}</p>
+          </div>
+          <div class="field col-12">
+            <label class="font-bold block">Otros</label>
+            <p>{{ examenExistente?.otros || '— Sin registrar —' }}</p>
+          </div>
+          <div class="col-12">
+            <button pButton pRipple label="Editar" icon="pi pi-pencil" (click)="habilitarEdicion()"></button>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div *ngIf="modoEdicion" class="formgrid grid p-fluid">
+          <div class="field col-12">
+            <label for="laboratorio">Laboratorio</label>
+            <textarea pInputTextarea id="laboratorio" [(ngModel)]="examen.laboratorio" rows="3"
+                      placeholder="Resultados de exámenes de laboratorio..."></textarea>
+          </div>
+          <div class="field col-12">
+            <label for="electro">Electrocardiograma</label>
+            <textarea pInputTextarea id="electro" [(ngModel)]="examen.electrocardiograma" rows="2"></textarea>
+          </div>
+          <div class="field col-12">
+            <label for="radiografia">Radiografía de Tórax</label>
+            <textarea pInputTextarea id="radiografia" [(ngModel)]="examen.radiografia_torax" rows="2"></textarea>
+          </div>
+          <div class="field col-12">
+            <label for="otrosExamen">Otros</label>
+            <textarea pInputTextarea id="otrosExamen" [(ngModel)]="examen.otros" rows="2"></textarea>
+          </div>
+          <div class="col-12 flex gap-2">
+            <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarExamen()"></button>
+            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cancelarEdicion()"></button>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="!pacienteActivo" class="text-center text-500 py-6">
+        Busque un paciente por cédula para ver o registrar sus exámenes complementarios.
+      </div>
+
+    </div>
+  </div>
+</div>

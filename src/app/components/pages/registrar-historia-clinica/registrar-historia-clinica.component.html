@@ -1,0 +1,277 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+      <h5 class="mb-4">Registrar Historia Clínica</h5>
+
+      <!-- DATOS DE AFILIACIÓN -->
+      <p-panel header="Datos de Afiliación" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-6">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" pInputText id="apellidos" [(ngModel)]="paciente.apellidos" placeholder="Ingrese los apellidos"
+                   [ngClass]="{'ng-invalid': submitted && !paciente.apellidos}" />
+          </div>
+          <div class="field col-6">
+            <label for="nombres">Nombres</label>
+            <input type="text" pInputText id="nombres" [(ngModel)]="paciente.nombres" placeholder="Ingrese los nombres"
+                   [ngClass]="{'ng-invalid': submitted && !paciente.nombres}" />
+          </div>
+
+          <div class="field col-4">
+            <label for="cedula">Cédula</label>
+            <input type="text" pInputText id="cedula" [(ngModel)]="paciente.cedula" maxlength="10" placeholder="Ingrese la cédula"
+                   [ngClass]="{'ng-invalid': submitted && !paciente.cedula}" />
+          </div>
+          <div class="field col-4">
+            <label for="telefono">Número de teléfono</label>
+            <input type="text" pInputText id="telefono" [(ngModel)]="paciente.telefono" placeholder="Ingrese número de teléfono" />
+          </div>
+          <div class="field col-4">
+            <label for="email">Correo</label>
+            <input type="email" pInputText id="email" [(ngModel)]="paciente.email" placeholder="example@example.com" />
+          </div>
+
+          <div class="field col-4">
+            <label for="fechaNacimiento">Fecha de nacimiento</label>
+            <input type="date" pInputText id="fechaNacimiento" [(ngModel)]="paciente.fecha_nacimiento" (change)="calcularEdad()"
+                   [ngClass]="{'ng-invalid': submitted && !paciente.fecha_nacimiento}" />
+          </div>
+          <div class="field col-4">
+            <label for="edad">Edad</label>
+            <input type="text" pInputText id="edad" [(ngModel)]="paciente.edad" [disabled]="true" />
+          </div>
+          <div class="field col-4 flex align-items-center gap-3 mt-4">
+            <label class="mb-0">GAD</label>
+            <div class="flex align-items-center gap-2">
+              <p-checkbox [binary]="true" [(ngModel)]="paciente.gad" inputId="gadSi"></p-checkbox>
+              <label for="gadSi">Pertenece al GAD</label>
+            </div>
+          </div>
+
+          <div class="field col-4">
+            <label for="ocupacion">Ocupación</label>
+            <input type="text" pInputText id="ocupacion" [(ngModel)]="paciente.ocupacion" placeholder="Ingrese la ocupación" />
+          </div>
+          <div class="field col-4">
+            <label for="residencia">Lugar de residencia</label>
+            <input type="text" pInputText id="residencia" [(ngModel)]="paciente.residencia" placeholder="Ingrese el lugar de residencia" />
+          </div>
+          <div class="field col-4">
+            <label for="procedencia">Lugar de procedencia</label>
+            <input type="text" pInputText id="procedencia" [(ngModel)]="paciente.procedencia" placeholder="Ingrese el lugar de procedencia" />
+          </div>
+
+          <div class="field col-4">
+            <label for="sexo">Sexo</label>
+            <p-dropdown id="sexo" [(ngModel)]="paciente.sexo" [options]="sexoOptions" optionLabel="label" optionValue="value"
+                        placeholder="Seleccionar" [ngClass]="{'ng-invalid': submitted && !paciente.sexo}"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label for="raza">Raza</label>
+            <p-dropdown id="raza" [(ngModel)]="paciente.raza" [options]="razaOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label for="religion">Religión</label>
+            <p-dropdown id="religion" [(ngModel)]="paciente.religion" [options]="religionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+
+          <div class="field col-4">
+            <label for="nivelInstruccion">Nivel de instrucción</label>
+            <p-dropdown id="nivelInstruccion" [(ngModel)]="paciente.nivel_instruccion" [options]="nivelInstruccionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label for="grupoAtencion">Grupo de atención prioritaria</label>
+            <p-dropdown id="grupoAtencion" [(ngModel)]="paciente.grupo_a_prioritaria" [options]="grupoAtencionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar" [showClear]="true"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label for="estadoCivil">Estado Civil</label>
+            <p-dropdown id="estadoCivil" [(ngModel)]="paciente.estado_civil" [options]="estadoCivilOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+
+          <div class="col-12">
+            <div class="surface-100 border-round p-3 flex align-items-start gap-3" [ngClass]="{'border-1 border-red-400': submitted && !paciente.consentimiento_datos}">
+              <p-checkbox [binary]="true" [(ngModel)]="paciente.consentimiento_datos" inputId="consentimientoDatos"></p-checkbox>
+              <label for="consentimientoDatos" class="m-0">
+                <strong>Consentimiento informado (obligatorio):</strong> el paciente (o su representante) autoriza el
+                tratamiento de sus datos personales y de salud para fines de atención médica en el Patronato del GAD
+                Junín, conforme a la Ley Orgánica de Protección de Datos Personales.
+              </label>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- ANTECEDENTES PATOLÓGICOS PERSONALES -->
+      <p-panel header="Antecedentes Patológicos Personales" [toggleable]="true" styleClass="mb-3">
+        <div class="p-fluid">
+          <div class="mb-3">
+            <label class="font-bold block mb-1">Niñez</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinNinez" inputId="sinNinez"></p-checkbox>
+              <label for="sinNinez" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinNinez" pInputTextarea [(ngModel)]="personal.infancia" rows="2" placeholder="Descripción de los antecedentes patológicos.."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="font-bold block mb-1">Adolescencia</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinAdolescencia" inputId="sinAdolescencia"></p-checkbox>
+              <label for="sinAdolescencia" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinAdolescencia" pInputTextarea [(ngModel)]="personal.adolecencia" rows="2" placeholder="Descripción de los antecedentes patológicos.."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="font-bold block mb-1">Adultez</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinAdultez" inputId="sinAdultez"></p-checkbox>
+              <label for="sinAdultez" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinAdultez" pInputTextarea [(ngModel)]="personal.adultez" rows="2" placeholder="Descripción de los antecedentes patológicos.."></textarea>
+          </div>
+
+          <div class="formgrid grid mb-3">
+            <div class="field col-3">
+              <label class="block mb-1">DBID</label>
+              <div class="flex gap-3">
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="personal.DBID" inputId="dbidSi"></p-checkbox><label for="dbidSi">Sí</label></div>
+              </div>
+            </div>
+            <div class="field col-3">
+              <label class="block mb-1">DBI</label>
+              <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="personal.DBI" inputId="dbiSi"></p-checkbox><label for="dbiSi">Sí</label></div>
+            </div>
+            <div class="field col-3">
+              <label class="block mb-1">HTA</label>
+              <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="personal.HTA" inputId="htaSi"></p-checkbox><label for="htaSi">Sí</label></div>
+            </div>
+            <div class="field col-3">
+              <label class="block mb-1">TbP</label>
+              <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="personal.TbP" inputId="tbpSi"></p-checkbox><label for="tbpSi">Sí</label></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="font-bold block mb-1">Antecedentes quirúrgicos</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinQuirurgicos" inputId="sinQuirurgicos"></p-checkbox>
+              <label for="sinQuirurgicos" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinQuirurgicos" pInputTextarea [(ngModel)]="personal.quirujircos" rows="2" placeholder="Descripción de los antecedentes quirúrgicos.."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="font-bold block mb-1">Antecedentes alérgicos</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinAlergicos" inputId="sinAlergicos"></p-checkbox>
+              <label for="sinAlergicos" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinAlergicos" pInputTextarea [(ngModel)]="personal.alergias" rows="2" placeholder="Descripción de los antecedentes alérgicos.."></textarea>
+            <small class="text-500"><i class="pi pi-lock mr-1"></i>Se guarda cifrado.</small>
+          </div>
+
+          <div class="mb-1">
+            <label class="font-bold block mb-1">Antecedentes traumatológicos</label>
+            <div class="field-checkbox mb-1">
+              <p-checkbox [binary]="true" [(ngModel)]="sinTraumatologicos" inputId="sinTraumatologicos"></p-checkbox>
+              <label for="sinTraumatologicos" class="ml-2">No existen antecedentes</label>
+            </div>
+            <textarea *ngIf="!sinTraumatologicos" pInputTextarea [(ngModel)]="personal.traumas" rows="2" placeholder="Descripción de los antecedentes traumatológicos.."></textarea>
+            <small class="text-500"><i class="pi pi-lock mr-1"></i>Se guarda cifrado.</small>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- ANTECEDENTES PATOLÓGICOS FAMILIARES + HÁBITOS PERSONALES -->
+      <div class="grid">
+        <div class="col-12 lg:col-6">
+          <p-panel header="Antecedentes Patológicos Familiares" [toggleable]="true" styleClass="mb-3 h-full">
+            <div class="p-fluid">
+              <div class="field">
+                <label for="nombreFamiliar">Nombre del familiar</label>
+                <input type="text" pInputText id="nombreFamiliar" [(ngModel)]="nuevoFamiliar.nombres" placeholder="Ingrese el nombre" />
+              </div>
+              <div class="formgrid grid">
+                <div class="field col-7">
+                  <label for="antecedentesFamiliar">Antecedentes patológicos</label>
+                  <input type="text" pInputText id="antecedentesFamiliar" [(ngModel)]="nuevoFamiliar.causas" placeholder="Ingrese los antecedentes" [disabled]="!!nuevoFamiliar.vida" />
+                </div>
+                <div class="field col-5">
+                  <label for="union">Unión</label>
+                  <p-dropdown id="union" [(ngModel)]="nuevoFamiliar.union" [options]="relacionOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+                </div>
+              </div>
+              <div class="field">
+                <label class="block mb-1">Estado</label>
+                <div class="flex gap-3">
+                  <div class="flex align-items-center gap-1">
+                    <p-checkbox [binary]="true" [ngModel]="nuevoFamiliar.vida === true" (onChange)="nuevoFamiliar.vida = true" inputId="fVive"></p-checkbox>
+                    <label for="fVive">Vive</label>
+                  </div>
+                  <div class="flex align-items-center gap-1">
+                    <p-checkbox [binary]="true" [ngModel]="nuevoFamiliar.vida === false" (onChange)="nuevoFamiliar.vida = false" inputId="fFallecido"></p-checkbox>
+                    <label for="fFallecido">Fallecido</label>
+                  </div>
+                </div>
+              </div>
+              <button pButton pRipple label="Agregar" icon="pi pi-plus" (click)="agregarFamiliar()"></button>
+
+              <p-table *ngIf="familiaresAgregados.length > 0" [value]="familiaresAgregados" class="mt-3">
+                <ng-template pTemplate="header">
+                  <tr><th>Nombre</th><th>Unión</th><th>Estado</th><th></th></tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-f let-i="rowIndex">
+                  <tr>
+                    <td>{{ f.nombres }}</td>
+                    <td>{{ f.union }}</td>
+                    <td>{{ f.vida ? 'Vive' : 'Falleció' }}</td>
+                    <td><button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="quitarFamiliar(i)"></button></td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-panel>
+        </div>
+
+        <div class="col-12 lg:col-6">
+          <p-panel header="Hábitos Personales" [toggleable]="true" styleClass="mb-3 h-full">
+            <div class="formgrid grid p-fluid">
+              <div class="field col-4">
+                <label class="block mb-1">Alcohol</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.alcoholSi" inputId="alcoholSi"></p-checkbox><label for="alcoholSi">Sí</label></div>
+              </div>
+              <div class="field col-4">
+                <label class="block mb-1">Tabaco</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.tabacoSi" inputId="tabacoSi"></p-checkbox><label for="tabacoSi">Sí</label></div>
+              </div>
+              <div class="field col-4">
+                <label class="block mb-1">Drogas</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.drogasSi" inputId="drogasSi"></p-checkbox><label for="drogasSi">Sí</label></div>
+              </div>
+              <div class="field col-4">
+                <label class="block mb-1">Alimentación</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.alimentacionSi" inputId="alimentacionSi"></p-checkbox><label for="alimentacionSi">Sí</label></div>
+              </div>
+              <div class="field col-4">
+                <label class="block mb-1">Diuresis</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.diuresisSi" inputId="diuresisSi"></p-checkbox><label for="diuresisSi">Sí</label></div>
+              </div>
+              <div class="field col-4">
+                <label class="block mb-1">Somnia</label>
+                <div class="flex align-items-center gap-1"><p-checkbox [binary]="true" [(ngModel)]="habito.somniaSi" inputId="somniaSi"></p-checkbox><label for="somniaSi">Sí</label></div>
+              </div>
+            </div>
+
+            <div class="flex justify-content-end mt-3">
+              <button pButton pRipple label="Generar Historia Clínica" icon="pi pi-check" [loading]="guardando" (click)="generarHistoriaClinica()"></button>
+            </div>
+          </p-panel>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

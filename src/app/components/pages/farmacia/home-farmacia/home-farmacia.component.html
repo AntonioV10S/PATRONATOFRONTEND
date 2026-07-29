@@ -1,0 +1,72 @@
+<div class="grid">
+  <div class="col-12">
+    <p-toast></p-toast>
+    <div class="grid">
+
+      <!-- RECETAS POR ENTREGAR -->
+      <div class="col-12 md:col-3">
+        <div class="card" style="min-height: 22rem;">
+          <div class="border-round-top p-3 text-white mb-3" style="background: #3F51B5; margin: -1.25rem -1.25rem 0 -1.25rem;">
+            <strong><i class="pi pi-inbox mr-2"></i>Recetas por Entregar</strong>
+          </div>
+          <p *ngIf="recetasPorEntregar.length === 0" class="text-500">Por ahora no hay recetas a la espera de ser entregadas.</p>
+          <div *ngFor="let e of recetasPorEntregar" class="flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #eee;">
+            <div>
+              <strong>{{ e.nombres }} {{ e.apellidos }}</strong>
+            </div>
+            <button pButton pRipple label="Receta" class="p-button-sm" (click)="imprimirReceta(e)"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICAMENTOS ENTREGADOS -->
+      <div class="col-12 md:col-3">
+        <div class="card" style="min-height: 22rem; max-height: 26rem; overflow-y: auto;">
+          <div class="border-round-top p-3 text-white mb-3" style="background: #03A9F4; margin: -1.25rem -1.25rem 0 -1.25rem;">
+            <strong><i class="pi pi-check-circle mr-2"></i>Medicamentos Entregados</strong>
+          </div>
+          <p *ngIf="medicamentosEntregados.length === 0" class="text-500">Sin entregas recientes.</p>
+          <div *ngFor="let e of medicamentosEntregados" class="flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #eee;">
+            <div>
+              <strong>{{ e.nombres }} {{ e.apellidos }}</strong>
+            </div>
+            <button pButton pRipple label="Receta" class="p-button-sm" (click)="imprimirReceta(e)"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICAMENTOS POR ACABARSE -->
+      <div class="col-12 md:col-3">
+        <div class="card" style="min-height: 22rem;">
+          <div class="border-round-top p-3 text-white mb-3" style="background: #5C6BC0; margin: -1.25rem -1.25rem 0 -1.25rem;">
+            <strong><i class="pi pi-exclamation-triangle mr-2"></i>Medicamentos Por acabarse</strong>
+          </div>
+          <p *ngIf="medicamentosPorAcabarse.length === 0" class="text-500">Sin alertas de stock bajo.</p>
+          <div *ngFor="let m of medicamentosPorAcabarse" class="flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #eee;">
+            <div>
+              <strong>{{ m.nombre_medicamento }}</strong><br>
+              <small>Existencias: {{ m.existencias }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICAMENTOS POR EXPIRAR -->
+      <div class="col-12 md:col-3">
+        <div class="card" style="min-height: 22rem;">
+          <div class="border-round-top p-3 text-white mb-3" style="background: #D84315; margin: -1.25rem -1.25rem 0 -1.25rem;">
+            <strong><i class="pi pi-clock mr-2"></i>Medicamentos por Expirar</strong>
+          </div>
+          <p *ngIf="medicamentosPorExpirar.length === 0" class="text-500">Sin alertas de vencimiento.</p>
+          <div *ngFor="let m of medicamentosPorExpirar" class="py-2" style="border-bottom: 1px solid #eee;">
+            <strong>{{ m.nombre_medicamento }}</strong>
+            ({{ m.diasRestantes < 0 ? (m.diasRestantes * -1) + ' días expirado' : m.diasRestantes + ' días restantes' }})<br>
+            <small>Fecha de expiración: {{ m.fechaexp }} · Cod. {{ m.codigodebarra }}</small><br>
+            <button pButton pRipple label="Desechar" class="p-button-sm p-button-danger mt-1" *ngIf="m.diasRestantes < 0" (click)="desechar(m)"></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-panel [header]="editando ? 'Editar Rol' : 'Crear Rol'" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-4">
+            <label for="rolNombre">Rol</label>
+            <input type="text" pInputText id="rolNombre" [(ngModel)]="rol.rol" placeholder="Ingrese rol" />
+          </div>
+          <div class="field col-4">
+            <label for="rolEstado">Estado</label>
+            <p-dropdown id="rolEstado" [(ngModel)]="rol.estado" [options]="estadoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+          <div class="field col-4">
+            <label for="rolCategoria">Categoría</label>
+            <p-dropdown id="rolCategoria" [(ngModel)]="categoriaSeleccionada" [options]="categoriaOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" *ngIf="editando" (click)="limpiarFormulario()"></button>
+          <button pButton pRipple [label]="editando ? 'Guardar Cambios' : 'Crear Rol'" icon="pi pi-check" [loading]="guardando" (click)="guardarRol()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Roles Registrados" [toggleable]="true">
+        <div class="flex justify-content-end mb-3">
+          <div class="p-inputgroup" style="max-width: 320px;">
+            <input type="text" pInputText placeholder="Escriba el rol" [(ngModel)]="busqueda" />
+            <button pButton pRipple icon="pi pi-search" label="Buscar"></button>
+          </div>
+        </div>
+
+        <p-table [value]="rolesFiltrados" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_rol">
+          <ng-template pTemplate="header">
+            <tr><th>Rol</th><th class="text-center">Estado</th><th class="text-center">Opciones</th></tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.rol }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado ? 'Habilitado' : 'Inhabilitado'" [severity]="datos.estado ? 'success' : 'danger'"></p-tag>
+              </td>
+              <td class="text-center">
+                <ng-container *ngIf="datos.rol !== 'Administrador'; else protegido">
+                  <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarRol(datos)"></button>
+                  <button pButton pRipple label="Eliminar" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="confirmarEliminar(datos)"></button>
+                </ng-container>
+                <ng-template #protegido>
+                  <small class="text-500">Rol protegido</small>
+                </ng-template>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage"><tr><td colspan="3" class="text-center">No hay roles registrados.</td></tr></ng-template>
+        </p-table>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <p-toast></p-toast>
+      <h5 class="mb-4">Datos de Afiliación</h5>
+
+      <div class="formgrid grid p-fluid">
+        <div class="field col-6">
+          <label for="apellidos">Apellidos</label>
+          <input type="text" pInputText id="apellidos" [(ngModel)]="paciente.apellidos" placeholder="Ingrese los apellidos"
+                 [ngClass]="{'ng-invalid': submitted && !paciente.apellidos}" />
+        </div>
+        <div class="field col-6">
+          <label for="nombres">Nombres</label>
+          <input type="text" pInputText id="nombres" [(ngModel)]="paciente.nombres" placeholder="Ingrese los nombres"
+                 [ngClass]="{'ng-invalid': submitted && !paciente.nombres}" />
+        </div>
+
+        <div class="field col-6">
+          <label for="cedula">Cédula</label>
+          <input type="text" pInputText id="cedula" [(ngModel)]="paciente.cedula" maxlength="10" placeholder="Ingrese el número de cédula"
+                 [ngClass]="{'ng-invalid': submitted && !paciente.cedula}" />
+        </div>
+        <div class="field col-6">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input type="date" pInputText id="fechaNacimiento" [(ngModel)]="paciente.fecha_nacimiento" (change)="calcularEdad()"
+                 [ngClass]="{'ng-invalid': submitted && !paciente.fecha_nacimiento}" />
+        </div>
+
+        <div class="field col-4 flex align-items-center gap-2 mt-4">
+          <p-checkbox [binary]="true" [(ngModel)]="paciente.gad" inputId="gadSi"></p-checkbox>
+          <label for="gadSi">GAD</label>
+        </div>
+        <div class="field col-4">
+          <label for="edad">Edad</label>
+          <input type="text" pInputText id="edad" [(ngModel)]="paciente.edad" [disabled]="true" />
+        </div>
+        <div class="field col-4">
+          <label for="sexo">Género</label>
+          <p-dropdown id="sexo" [(ngModel)]="paciente.sexo" [options]="sexoOptions" optionLabel="label" optionValue="value"
+                      placeholder="Seleccionar" [ngClass]="{'ng-invalid': submitted && !paciente.sexo}"></p-dropdown>
+        </div>
+
+        <div class="field col-6">
+          <label for="residencia">Lugar de residencia</label>
+          <input type="text" pInputText id="residencia" [(ngModel)]="paciente.residencia" placeholder="Ingrese el lugar de residencia" />
+        </div>
+        <div class="field col-6">
+          <label for="procedencia">Lugar de procedencia</label>
+          <input type="text" pInputText id="procedencia" [(ngModel)]="paciente.procedencia" placeholder="Ingrese el lugar de procedencia" />
+        </div>
+
+        <div class="col-12">
+          <div class="surface-100 border-round p-3 flex align-items-start gap-3" [ngClass]="{'border-1 border-red-400': submitted && !paciente.consentimiento_datos}">
+            <p-checkbox [binary]="true" [(ngModel)]="paciente.consentimiento_datos" inputId="consentimientoDatos"></p-checkbox>
+            <label for="consentimientoDatos" class="m-0">
+              <strong>Consentimiento informado (obligatorio):</strong> el paciente (o su representante) autoriza el
+              tratamiento de sus datos personales y de salud, conforme a la Ley Orgánica de Protección de Datos Personales.
+            </label>
+          </div>
+        </div>
+
+        <div class="col-12 flex justify-content-end">
+          <button pButton pRipple label="Agregar Paciente" icon="pi pi-check" [loading]="guardando" (click)="guardarPaciente()"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

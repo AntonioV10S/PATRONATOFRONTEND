@@ -1,0 +1,112 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+      <h5 class="mb-4">Historial de Consultas</h5>
+
+      <div class="flex flex-wrap justify-content-between gap-3 mb-4">
+        <div class="flex align-items-end gap-2">
+          <div class="field mb-0">
+            <label>Fecha inicial</label>
+            <input type="date" pInputText [(ngModel)]="fechaInicial" />
+          </div>
+          <div class="field mb-0">
+            <label>Fecha final</label>
+            <input type="date" pInputText [(ngModel)]="fechaFinal" />
+          </div>
+          <button pButton pRipple icon="pi pi-sliders-h" label="Filtrar" [loading]="cargando" (click)="filtrar()"></button>
+        </div>
+        <div class="flex align-items-end gap-2">
+          <div class="field mb-0">
+            <label>Buscar por Apellido:</label>
+            <input type="text" pInputText [(ngModel)]="busquedaApellido" placeholder="Ingresar apellido del paciente" (keyup)="aplicarBusqueda()" />
+          </div>
+          <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="aplicarBusqueda()"></button>
+        </div>
+      </div>
+
+      <p-table [value]="consultasFiltradas" [loading]="cargando" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Cédula</th><th>Nombres</th><th>Apellidos</th><th class="text-center">Edad</th>
+            <th class="text-center">Fecha</th><th>Lugar de Atención</th><th class="text-center">GAD</th><th class="text-center">Opciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-c>
+          <tr>
+            <td>{{ c.paciente?.cedula }}</td>
+            <td>{{ c.paciente?.nombres }}</td>
+            <td>{{ c.paciente?.apellidos }}</td>
+            <td class="text-center">{{ c.paciente?.edad }} años</td>
+            <td class="text-center">{{ c.fecha }}</td>
+            <td>{{ c.lugar_atencion }}</td>
+            <td class="text-center"><p-tag [value]="c.paciente?.gad ? 'SI' : 'NO'" [severity]="c.paciente?.gad ? 'success' : 'secondary'"></p-tag></td>
+            <td class="text-center">
+              <button pButton pRipple label="Datos Consulta" icon="pi pi-book" class="p-button-text p-button-sm" (click)="verDatosConsulta(c)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="8" class="text-center">Seleccione un rango de fechas y presione Filtrar para ver el historial.</td></tr></ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="detalleDialog" [style]="{width:'700px'}" header="Expediente del Paciente" [modal]="true">
+        <ng-template pTemplate="content">
+          <div *ngIf="cargandoDetalle" class="text-center py-4"><i class="pi pi-spin pi-spinner text-3xl"></i></div>
+
+          <div *ngIf="!cargandoDetalle && detalle">
+            <h6>Consulta</h6>
+            <p><strong>Fecha:</strong> {{ detalle.fecha }}</p>
+            <p><strong>Motivo:</strong> {{ detalle.datos_sensibles?.motivo }}</p>
+            <p><strong>Diagnóstico:</strong> {{ detalle.datos_sensibles?.diagnostico }}</p>
+            <p><strong>Plan terapéutico:</strong> {{ detalle.datos_sensibles?.plan_terapeutico || '—' }}</p>
+          </div>
+
+          <div *ngIf="pacienteCompleto" class="mt-4">
+            <h6>Datos de Afiliación</h6>
+            <p>
+              <strong>{{ pacienteCompleto.apellidos }} {{ pacienteCompleto.nombres }}</strong><br>
+              Edad: {{ pacienteCompleto.edad }} · Sexo: {{ pacienteCompleto.sexo }} ·
+              GAD: {{ pacienteCompleto.gad ? 'Sí' : 'No' }}<br>
+              Residencia: {{ pacienteCompleto.residencia || '—' }} · Procedencia: {{ pacienteCompleto.procedencia || '—' }}<br>
+              Raza: {{ pacienteCompleto.raza || '—' }} · Religión: {{ pacienteCompleto.religion || '—' }} ·
+              Estado Civil: {{ pacienteCompleto.estado_civil || '—' }}<br>
+              Nivel de instrucción: {{ pacienteCompleto.nivel_instruccion || '—' }} ·
+              Grupo de atención prioritaria: {{ pacienteCompleto.grupo_a_prioritaria || 'Ninguno' }}
+            </p>
+
+            <div *ngIf="pacienteCompleto.antecedentes_patologicos_personales?.length">
+              <h6>Antecedentes Patológicos Personales</h6>
+              <p *ngFor="let a of pacienteCompleto.antecedentes_patologicos_personales">
+                Niñez: {{ a.infancia === '1' ? 'Sin antecedentes' : a.infancia }}<br>
+                Adolescencia: {{ a.adolecencia === '1' ? 'Sin antecedentes' : a.adolecencia }}<br>
+                Adultez: {{ a.adultez === '1' ? 'Sin antecedentes' : a.adultez }}<br>
+                DBID: {{ a.DBID ? 'Sí' : 'No' }} · DBI: {{ a.DBI ? 'Sí' : 'No' }} ·
+                HTA: {{ a.HTA ? 'Sí' : 'No' }} · TbP: {{ a.TbP ? 'Sí' : 'No' }}<br>
+                Quirúrgicos: {{ a.quirujircos === '1' ? 'Sin antecedentes' : a.quirujircos }}<br>
+                Alergias: {{ a.alergias_enc ? 'Registradas (cifradas)' : 'Sin antecedentes' }}<br>
+                Traumatológicos: {{ a.traumas_enc ? 'Registrados (cifrados)' : 'Sin antecedentes' }}
+              </p>
+            </div>
+
+            <div *ngIf="pacienteCompleto.habitos?.length">
+              <h6>Hábitos Personales</h6>
+              <p *ngFor="let h of pacienteCompleto.habitos">
+                Alcohol: {{ h.alcohol || '—' }} · Tabaco: {{ h.tabaco || '—' }} · Drogas: {{ h.drogas || '—' }}<br>
+                Alimentación: {{ h.alimentacion || '—' }} · Diuresis: {{ h.diuresis || '—' }} · Sueño: {{ h.somnia || '—' }}
+              </p>
+            </div>
+
+            <div *ngIf="pacienteCompleto.familiares?.length">
+              <h6>Antecedentes Patológicos Familiares</h6>
+              <p *ngFor="let f of pacienteCompleto.familiares">
+                {{ f.nombres }} ({{ f.union }}) — {{ f.vida ? 'Vive' : 'Falleció' }}
+                <span *ngIf="!f.vida">· {{ f.causas }}</span>
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

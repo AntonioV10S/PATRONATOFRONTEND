@@ -1,0 +1,43 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+      <h5 class="mb-4">Generar Reporte</h5>
+
+      <div class="grid">
+        <div class="col-12 lg:col-6">
+          <p-card header="Registro Diario">
+            <div class="field mb-3">
+              <label>Fecha</label>
+              <input type="date" pInputText [(ngModel)]="fecha" class="w-full" />
+            </div>
+            <button pButton pRipple label="Generar" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'diario'" (click)="registroDiario()"></button>
+          </p-card>
+        </div>
+
+        <div class="col-12 lg:col-6">
+          <p-card header="Consolidado Mensual">
+            <div class="formgrid grid mb-3">
+              <div class="field col-6">
+                <label>Mes</label>
+                <p-dropdown [(ngModel)]="mes" [options]="meses" optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
+              </div>
+              <div class="field col-6">
+                <label>Año</label>
+                <input type="number" pInputText [(ngModel)]="year" class="w-full" />
+              </div>
+            </div>
+            <button pButton pRipple label="Generar" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'consolidado'" (click)="consolidadoMensual()"></button>
+          </p-card>
+        </div>
+
+        <div class="col-12 lg:col-6">
+          <p-card header="Morbilidad">
+            <p class="text-500 mb-3">Usa el mes y año seleccionados arriba.</p>
+            <button pButton pRipple label="Generar" icon="pi pi-file-pdf" class="p-button-outlined" [loading]="generando === 'morbilidad'" (click)="morbilidad()"></button>
+          </p-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

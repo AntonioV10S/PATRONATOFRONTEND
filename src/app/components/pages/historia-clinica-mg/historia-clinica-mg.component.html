@@ -1,0 +1,299 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Historia Clínica — Medicina General</h5>
+        </ng-template>
+      </p-toolbar>
+
+      <!-- Búsqueda de paciente -->
+      <div class="flex align-items-end gap-2 mb-4">
+        <div class="field mb-0" style="min-width: 260px;">
+          <label for="cedulaBuscar">Cédula del paciente</label>
+          <input type="text" pInputText id="cedulaBuscar" [(ngModel)]="busquedaCedula"
+                 (keyup.enter)="buscarPaciente()" placeholder="Ej: 1312345678" />
+        </div>
+        <button pButton pRipple label="Buscar" icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+      </div>
+
+      <!-- Datos del paciente encontrado -->
+      <div *ngIf="pacienteActivo" class="surface-100 border-round p-3 mb-4 flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ pacienteActivo.apellidos }} {{ pacienteActivo.nombres }}</strong>
+          — Edad: {{ pacienteActivo.edad }} — Sexo: {{ pacienteActivo.sexo }}
+          <p-tag *ngIf="pacienteActivo.grupo_a_prioritaria && pacienteActivo.grupo_a_prioritaria !== 'Ninguno'"
+                 [value]="pacienteActivo.grupo_a_prioritaria" severity="warning" class="ml-2"></p-tag>
+        </div>
+        <button pButton pRipple label="Ver Antecedentes" icon="pi pi-clipboard" class="p-button-outlined mr-2" (click)="verAntecedentes()"></button>
+        <button pButton pRipple label="Nueva Consulta" icon="pi pi-plus" class="p-button-success" (click)="abrirNuevaConsulta()"></button>
+      </div>
+
+      <!-- Diálogo: resumen de antecedentes del paciente -->
+      <p-dialog [(visible)]="antecedentesDialog" [style]="{width:'600px'}" header="Antecedentes del Paciente" [modal]="true">
+        <ng-template pTemplate="content">
+          <div *ngIf="cargandoAntecedentes" class="text-center py-4"><i class="pi pi-spin pi-spinner text-3xl"></i></div>
+          <div *ngIf="!cargandoAntecedentes && detallePaciente">
+            <div *ngIf="detallePaciente.antecedentes_patologicos_personales?.length; else sinPatologicos">
+              <h6>Patológicos Personales</h6>
+              <p *ngFor="let a of detallePaciente.antecedentes_patologicos_personales">
+                HTA: {{ a.HTA ? 'Sí' : 'No' }} · DBI: {{ a.DBI ? 'Sí' : 'No' }} · TbP: {{ a.TbP ? 'Sí' : 'No' }}<br>
+                Alergias: {{ a.alergias_enc ? 'Registradas (cifradas)' : 'Ninguna' }}
+              </p>
+            </div>
+            <ng-template #sinPatologicos><p class="text-500">Sin antecedentes patológicos registrados.</p></ng-template>
+
+            <div *ngIf="detallePaciente.habitos?.length; else sinHabitos">
+              <h6>Hábitos</h6>
+              <p *ngFor="let h of detallePaciente.habitos">
+                Alcohol: {{ h.alcohol || '—' }} · Tabaco: {{ h.tabaco || '—' }} · Drogas: {{ h.drogas || '—' }}
+              </p>
+            </div>
+            <ng-template #sinHabitos><p class="text-500">Sin hábitos registrados.</p></ng-template>
+
+            <div *ngIf="detallePaciente.familiares?.length">
+              <h6>Familiares</h6>
+              <p *ngFor="let f of detallePaciente.familiares">{{ f.nombres }} ({{ f.union }}) — {{ f.vida ? 'Vive' : 'Falleció' }}</p>
+            </div>
+
+            <small class="text-500 block mt-3"><i class="pi pi-info-circle mr-1"></i>Para registrar o editar antecedentes, use el módulo de Registro de Antecedentes (Secretaría).</small>
+          </div>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Historial -->
+      <p-table *ngIf="pacienteActivo" [value]="consultas" [loading]="cargandoConsultas" responsiveLayout="scroll"
+               [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]" dataKey="id_historia_mg">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Fecha</th>
+            <th>Código CIE</th>
+            <th>Diagnóstico (catálogo)</th>
+            <th class="text-center">Tipo de Atención</th>
+            <th class="text-center">Condición</th>
+            <th>Lugar</th>
+            <th class="text-center" style="width: 12rem">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-fila>
+          <tr>
+            <td>{{ fila.fecha }}</td>
+            <td>{{ fila.enfermedad?.codigo_cie || '—' }}</td>
+            <td>{{ fila.enfermedad?.enfermedad || '—' }}</td>
+            <td class="text-center">{{ fila.tipo_atencion }}</td>
+            <td class="text-center">
+              <p-tag [value]="fila.condicion_diagnostico" [severity]="fila.condicion_diagnostico === 'Definitivo' ? 'success' : 'info'"></p-tag>
+            </td>
+            <td>{{ fila.lugar_atencion }}</td>
+            <td>
+              <div class="flex justify-content-center gap-2">
+                <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info" pTooltip="Ver contenido (descifrado)" (click)="verDetalle(fila)"></button>
+                <button pButton pRipple icon="pi pi-shield" class="p-button-rounded p-button-help" pTooltip="Verificar integridad forense" (click)="verificarIntegridad(fila)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center">Este paciente no tiene consultas de Medicina General registradas.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <div *ngIf="!pacienteActivo" class="text-center text-500 py-6">
+        Busque un paciente por cédula para ver o registrar su historial de Medicina General.
+      </div>
+
+      <!-- Diálogo: Nueva Consulta -->
+      <p-dialog [(visible)]="nuevaConsultaDialog" [style]="{width:'750px'}" header="Nueva Consulta - Medicina General" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <div class="surface-100 border-round p-3 mb-4">
+            <i class="pi pi-lock text-primary mr-2"></i>
+            El contenido clínico se cifra con ECDH (llave institucional) y se firma digitalmente (ECDSA) con la
+            llave privada del médico. La llave privada solo se usa en este navegador para firmar y nunca se
+            almacena en el servidor.
+          </div>
+
+          <!-- Exámenes de laboratorio del paciente, si tiene -->
+          <div *ngIf="cargandoExamen" class="text-center py-2 mb-3">
+            <i class="pi pi-spin pi-spinner"></i> Cargando exámenes del paciente...
+          </div>
+          <p-fieldset *ngIf="!cargandoExamen && examenComplementario" legend="Exámenes Complementarios del Paciente" [toggleable]="true" [collapsed]="true" class="mb-4">
+            <p *ngIf="examenComplementario.laboratorio"><strong>Laboratorio:</strong> {{ examenComplementario.laboratorio }}</p>
+            <p *ngIf="examenComplementario.electrocardiograma"><strong>Electrocardiograma:</strong> {{ examenComplementario.electrocardiograma }}</p>
+            <p *ngIf="examenComplementario.radiografia_torax"><strong>Radiografía de Tórax:</strong> {{ examenComplementario.radiografia_torax }}</p>
+            <p *ngIf="examenComplementario.otros"><strong>Otros:</strong> {{ examenComplementario.otros }}</p>
+          </p-fieldset>
+          <div *ngIf="!cargandoExamen && !examenComplementario" class="surface-100 border-round p-2 mb-4 text-500 text-sm">
+            <i class="pi pi-info-circle mr-1"></i>Este paciente no tiene exámenes complementarios registrados.
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label for="diagnosticoCatalogo">Diagnóstico (catálogo)</label>
+              <p-dropdown id="diagnosticoCatalogo" [(ngModel)]="formNueva.id_enfermedad" [options]="enfermedades"
+                          optionLabel="labelConCie" optionValue="id_enfermedad" placeholder="Seleccionar" [filter]="true"
+                          [ngClass]="{'ng-invalid': submitted && !formNueva.id_enfermedad}"></p-dropdown>
+              <small *ngIf="submitted && !formNueva.id_enfermedad" class="p-error">Requerido.</small>
+            </div>
+            <div class="field col-6">
+              <label for="tipoAtencion">Tipo de Atención</label>
+              <p-dropdown id="tipoAtencion" [(ngModel)]="formNueva.tipo_atencion" [options]="tipoAtencionOptions"
+                          optionLabel="label" optionValue="value" placeholder="Seleccionar"
+                          [ngClass]="{'ng-invalid': submitted && !formNueva.tipo_atencion}"></p-dropdown>
+              <small *ngIf="submitted && !formNueva.tipo_atencion" class="p-error">Requerido.</small>
+            </div>
+
+            <div class="field col-12">
+              <label for="motivo">Motivo de consulta</label>
+              <textarea pInputTextarea id="motivo" [(ngModel)]="formNueva.motivo" rows="2"
+                        [ngClass]="{'ng-invalid': submitted && !formNueva.motivo}"></textarea>
+              <small *ngIf="submitted && !formNueva.motivo" class="p-error">Requerido.</small>
+            </div>
+
+            <div class="field col-12">
+              <label for="diagnostico">Diagnóstico clínico</label>
+              <textarea pInputTextarea id="diagnostico" [(ngModel)]="formNueva.diagnostico" rows="2"
+                        [ngClass]="{'ng-invalid': submitted && !formNueva.diagnostico}"></textarea>
+              <small *ngIf="submitted && !formNueva.diagnostico" class="p-error">Requerido.</small>
+            </div>
+
+            <div class="field col-12">
+              <label for="planTerapeutico">Plan terapéutico</label>
+              <textarea pInputTextarea id="planTerapeutico" [(ngModel)]="formNueva.plan_terapeutico" rows="2"></textarea>
+            </div>
+
+            <div class="field col-6">
+              <label for="condicionDiagnostico">Condición del diagnóstico</label>
+              <p-dropdown id="condicionDiagnostico" [(ngModel)]="formNueva.condicion_diagnostico" [options]="condicionDiagnosticoOptions"
+                          optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+            <div class="field col-6">
+              <label for="lugarAtencion">Lugar de atención</label>
+              <p-dropdown id="lugarAtencion" [(ngModel)]="formNueva.lugar_atencion" [options]="lugarAtencionOptions"
+                          optionLabel="label" optionValue="value" placeholder="Seleccionar"
+                          [ngClass]="{'ng-invalid': submitted && !formNueva.lugar_atencion}"></p-dropdown>
+              <small *ngIf="submitted && !formNueva.lugar_atencion" class="p-error">Requerido.</small>
+            </div>
+
+            <div class="field col-8">
+              <label for="grupoAtencion">Grupo de atención prioritaria del paciente</label>
+              <p-dropdown id="grupoAtencion" [(ngModel)]="formNueva.grupo_atencion" [options]="grupoAtencionOptions"
+                          optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+            <div class="field col-4 flex align-items-center justify-content-between mt-4">
+              <label for="certificado">Emitir certificado</label>
+              <p-inputSwitch id="certificado" [(ngModel)]="formNueva.certificado"></p-inputSwitch>
+            </div>
+
+            <!-- Recetar medicamentos: al guardar, se crea la Entrega automáticamente -->
+            <div class="field col-12">
+              <p-fieldset legend="Recetar Medicamentos (opcional)" [toggleable]="true" [collapsed]="recetaCarrito.length === 0">
+                <div class="formgrid grid mb-3">
+                  <div class="field col-4">
+                    <label for="pesoReceta">Peso</label>
+                    <input type="text" pInputText id="pesoReceta" [(ngModel)]="pesoReceta" [ngModelOptions]="{standalone: true}" placeholder="Ej: 70 kg" />
+                  </div>
+                  <div class="field col-4">
+                    <label for="tallaReceta">Talla</label>
+                    <input type="text" pInputText id="tallaReceta" [(ngModel)]="tallaReceta" [ngModelOptions]="{standalone: true}" placeholder="Ej: 1.70 m" />
+                  </div>
+                  <div class="field col-4">
+                    <label for="taReceta">T.A.</label>
+                    <input type="text" pInputText id="taReceta" [(ngModel)]="taReceta" [ngModelOptions]="{standalone: true}" placeholder="Ej: 120/80" />
+                  </div>
+                </div>
+                <div class="formgrid grid mb-2">
+                  <div class="field col-5">
+                    <label for="medicamentoReceta">Medicamento</label>
+                    <p-dropdown id="medicamentoReceta" [(ngModel)]="medicamentoSeleccionado" [options]="medicamentosDisponibles"
+                                optionLabel="nombre" optionValue="id_medicamento" placeholder="Seleccionar" [filter]="true"
+                                [ngModelOptions]="{standalone: true}"></p-dropdown>
+                  </div>
+                  <div class="field col-2">
+                    <label for="cantidadReceta">Cantidad</label>
+                    <p-inputNumber id="cantidadReceta" [(ngModel)]="cantidadSeleccionada" [min]="1" [ngModelOptions]="{standalone: true}"></p-inputNumber>
+                  </div>
+                  <div class="field col-5">
+                    <label for="indicacionesReceta">Indicaciones</label>
+                    <input type="text" pInputText id="indicacionesReceta" [(ngModel)]="indicacionesSeleccionadas"
+                           placeholder="Ej: 1 cada 8 horas por 5 días" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                </div>
+                <button pButton pRipple type="button" label="Agregar a la receta" icon="pi pi-plus" class="p-button-sm p-button-secondary mb-3" (click)="agregarMedicamentoAlCarrito()"></button>
+
+                <p-table *ngIf="recetaCarrito.length > 0" [value]="recetaCarrito">
+                  <ng-template pTemplate="header">
+                    <tr><th>Medicamento</th><th class="text-center">Cantidad</th><th>Indicaciones</th><th></th></tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item let-i="rowIndex">
+                    <tr>
+                      <td>{{ item.nombre }}</td>
+                      <td class="text-center">{{ item.cantidad }}</td>
+                      <td>{{ item.indicaciones }}</td>
+                      <td><button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="quitarMedicamentoDelCarrito(i)"></button></td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+                <small *ngIf="recetaCarrito.length === 0" class="text-500">Sin medicamentos agregados. Esta consulta se guardará sin receta de farmacia.</small>
+              </p-fieldset>
+            </div>
+
+            <div class="field col-12">
+              <label for="llaveMedico">Llave privada del médico (.pem) — para firmar digitalmente</label>
+              <input type="file" id="llaveMedico" accept=".pem,.key,.txt" (change)="onArchivoLlave($event)" class="block" />
+              <small *ngIf="nombreArchivoLlave" class="block text-500 mt-1">
+                <i class="pi pi-check text-green-500 mr-1"></i>{{ nombreArchivoLlave }} cargada en memoria (no se sube por separado; viaja junto con la consulta).
+              </small>
+              <small *ngIf="submitted && !llavePrivadaTexto" class="p-error">Debe cargar su llave privada para firmar el registro.</small>
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideNuevaConsulta()"></button>
+          <button pButton pRipple label="Firmar y Guardar" icon="pi pi-lock" [loading]="guardando" (click)="guardarConsulta()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Diálogo: receta generada, ofrece imprimir -->
+      <p-dialog [(visible)]="recetaGeneradaDialog" [style]="{width:'400px'}" header="Receta Generada" [modal]="true">
+        <ng-template pTemplate="content">
+          <p><i class="pi pi-check-circle text-green-500 mr-2"></i>La receta se registró en Farmacia y está pendiente de despacho.</p>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="recetaGeneradaDialog = false"></button>
+          <button pButton pRipple label="Imprimir Receta" icon="pi pi-print" (click)="imprimirRecetaGenerada()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Diálogo: Detalle descifrado -->
+      <p-dialog [(visible)]="detalleDialog" [style]="{width:'650px'}" header="Detalle de la Consulta (descifrado)" [modal]="true">
+        <ng-template pTemplate="content">
+          <div *ngIf="cargandoDetalle" class="text-center py-4">
+            <i class="pi pi-spin pi-spinner text-3xl"></i>
+          </div>
+          <div *ngIf="!cargandoDetalle && detalle">
+            <p><strong>Fecha:</strong> {{ detalle.fecha }}</p>
+            <p><strong>Motivo:</strong> {{ detalle.datos_sensibles?.motivo }}</p>
+            <p><strong>Diagnóstico:</strong> {{ detalle.datos_sensibles?.diagnostico }}</p>
+            <p><strong>Plan terapéutico:</strong> {{ detalle.datos_sensibles?.plan_terapeutico || '—' }}</p>
+            <hr>
+            <p class="text-500 text-sm">
+              <i class="pi pi-lock mr-1"></i>Este contenido estuvo cifrado con ECDH y se descifró en el servidor
+              únicamente para esta consulta, usando la llave privada institucional.
+            </p>
+          </div>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

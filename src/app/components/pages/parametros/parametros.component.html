@@ -1,0 +1,102 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <div class="surface-100 border-round p-3 mb-3">
+        <i class="pi pi-info-circle text-primary mr-2"></i>
+        Aquí se configura el responsable institucional que aparece en los reportes oficiales (nombre, cargo, resolución),
+        y los umbrales de alerta de farmacia (stock mínimo y días para vencer).
+      </div>
+
+      <p-panel [header]="editando ? 'Editar Parámetro' : 'Crear Parámetro'" [toggleable]="true" styleClass="mb-3">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-6">
+            <label for="nombres">Nombres del responsable</label>
+            <input type="text" pInputText id="nombres" [(ngModel)]="parametro.nombres" placeholder="Ingrese los nombres" />
+          </div>
+          <div class="field col-6">
+            <label for="cargo">Cargo</label>
+            <input type="text" pInputText id="cargo" [(ngModel)]="parametro.cargo" placeholder="Ej: Coordinador del Patronato" />
+          </div>
+
+          <div class="field col-6">
+            <label for="profesion">Profesión</label>
+            <input type="text" pInputText id="profesion" [(ngModel)]="parametro.profesion" placeholder="Ej: Médico Cirujano" />
+          </div>
+          <div class="field col-6">
+            <label for="resolucion">Resolución</label>
+            <input type="text" pInputText id="resolucion" [(ngModel)]="parametro.resolucion" placeholder="Número de resolución (si aplica)" />
+          </div>
+
+          <div class="field col-4">
+            <label for="valor">Valor</label>
+            <input type="text" pInputText id="valor" [(ngModel)]="parametro.valor" placeholder="Valor asociado (si aplica)" />
+          </div>
+          <div class="field col-4" *ngIf="!editando">
+            <label for="stockMin">Stock mínimo (alerta)</label>
+            <p-inputNumber id="stockMin" [(ngModel)]="parametro.pexistenciasmin" [min]="0" placeholder="Ej: 10"></p-inputNumber>
+          </div>
+          <div class="field col-4" *ngIf="!editando">
+            <label for="diasExp">Días para vencer (alerta)</label>
+            <p-inputNumber id="diasExp" [(ngModel)]="parametro.pfechaexp" [min]="0" placeholder="Ej: 30"></p-inputNumber>
+          </div>
+          <div class="field col-4">
+            <label for="estado">Estado</label>
+            <p-dropdown id="estado" [(ngModel)]="parametro.estado" [options]="estadoOptions" optionLabel="label" optionValue="value" placeholder="Seleccionar"></p-dropdown>
+          </div>
+        </div>
+        <small class="text-500 block mb-3" *ngIf="editando">
+          <i class="pi pi-info-circle mr-1"></i>El stock mínimo y días para vencer solo se configuran al crear un parámetro nuevo.
+        </small>
+        <div class="flex justify-content-end gap-2">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" *ngIf="editando" (click)="openNew()"></button>
+          <button pButton pRipple [label]="editando ? 'Guardar Cambios' : 'Crear Parámetro'" icon="pi pi-check" [loading]="guardando" (click)="guardarParametro()"></button>
+        </div>
+      </p-panel>
+
+      <p-panel header="Parámetros Registrados" [toggleable]="true">
+        <div class="flex justify-content-end mb-3">
+          <div class="p-inputgroup" style="max-width: 320px;">
+            <input type="text" pInputText placeholder="Escriba el nombre" [(ngModel)]="busqueda" />
+            <button pButton pRipple icon="pi pi-search" label="Buscar"></button>
+          </div>
+        </div>
+
+        <p-table [value]="parametrosFiltrados" responsiveLayout="scroll" [rows]="10" [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_parametros">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Nombres</th>
+              <th>Cargo</th>
+              <th>Profesión</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center">Opciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-datos>
+            <tr>
+              <td>{{ datos.nombres }}</td>
+              <td>{{ datos.cargo || '—' }}</td>
+              <td>{{ datos.profesion || '—' }}</td>
+              <td class="text-center">
+                <p-tag [value]="datos.estado ? 'Habilitado' : 'Inhabilitado'" [severity]="datos.estado ? 'success' : 'danger'"></p-tag>
+              </td>
+              <td class="text-center">
+                <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarParametro(datos)"></button>
+                <button pButton pRipple label="Eliminar" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="confirmarEliminar(datos)"></button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="5" class="text-center">No hay parámetros registrados.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+
+    </div>
+  </div>
+</div>

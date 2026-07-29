@@ -1,0 +1,207 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Entregas de Medicamentos</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="Nueva Entrega" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-tabView>
+        <p-tabPanel header="Pendientes">
+          <p-table [value]="pendientes" responsiveLayout="scroll" [rows]="10" [paginator]="true" dataKey="id_entrega">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Paciente</th>
+                <th class="text-center">Fecha</th>
+                <th class="text-center">Total a Pagar</th>
+                <th class="text-center" style="width: 8rem">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-datos>
+              <tr>
+                <td>{{ datos.apellidos }} {{ datos.nombres }}</td>
+                <td class="text-center">{{ datos.Fechaentrega }}</td>
+                <td class="text-center">{{ datos.totalapagar | currency }}</td>
+                <td>
+                  <div class="flex justify-content-center">
+                    <button pButton pRipple icon="pi pi-box" class="p-button-rounded p-button-info" pTooltip="Ver / despachar" (click)="abrirDetalle(datos)"></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="4" class="text-center">No hay entregas pendientes.</td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+        <p-tabPanel header="Despachadas">
+          <p-table [value]="entregadas" responsiveLayout="scroll" [rows]="10" [paginator]="true" dataKey="id_entrega">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Paciente</th>
+                <th class="text-center">Fecha</th>
+                <th class="text-center">Total Pagado</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-datos>
+              <tr>
+                <td>{{ datos.apellidos }} {{ datos.nombres }}</td>
+                <td class="text-center">{{ datos.Fechaentrega }}</td>
+                <td class="text-center">{{ datos.totalapagar | currency }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="3" class="text-center">No hay entregas despachadas todavía.</td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+      </p-tabView>
+
+      <!-- Nueva entrega -->
+      <p-dialog [(visible)]="nuevaEntregaDialog" [style]="{width:'550px'}" header="Nueva Entrega" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <div class="field">
+            <label for="cedulaEntrega">Cédula del paciente</label>
+            <div class="p-inputgroup">
+              <input type="text" pInputText id="cedulaEntrega" [(ngModel)]="busquedaCedula" />
+              <button pButton pRipple icon="pi pi-search" [loading]="buscandoPaciente" (click)="buscarPaciente()"></button>
+            </div>
+            <small *ngIf="pacienteEncontrado" class="block text-green-600 mt-1">
+              <i class="pi pi-check mr-1"></i>{{ pacienteEncontrado.apellidos }} {{ pacienteEncontrado.nombres }}
+            </small>
+            <small *ngIf="submitted && !entrega.id_paciente" class="p-error">Debe buscar y seleccionar un paciente registrado.</small>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-4">
+              <label for="pesoEntrega">Peso</label>
+              <input type="text" pInputText id="pesoEntrega" [(ngModel)]="entrega.peso" />
+            </div>
+            <div class="field col-4">
+              <label for="tallaEntrega">Talla</label>
+              <input type="text" pInputText id="tallaEntrega" [(ngModel)]="entrega.talla" />
+            </div>
+            <div class="field col-4">
+              <label for="taEntrega">T.A.</label>
+              <input type="text" pInputText id="taEntrega" [(ngModel)]="entrega.ta" />
+            </div>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-4">
+              <label for="subtotalEntrega">Subtotal</label>
+              <p-inputNumber id="subtotalEntrega" [(ngModel)]="entrega.subtotal" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            </div>
+            <div class="field col-4">
+              <label for="descuentoEntrega">Descuento (%)</label>
+              <p-inputNumber id="descuentoEntrega" [(ngModel)]="entrega.descuento" [min]="0" [max]="100"></p-inputNumber>
+            </div>
+            <div class="field col-4">
+              <label for="totalEntrega">Total a pagar</label>
+              <p-inputNumber id="totalEntrega" [(ngModel)]="entrega.totalapagar" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarEntrega()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Detalle: medicamentos + factura + despacho -->
+      <p-dialog [(visible)]="detalleDialog" [style]="{width:'750px'}"
+                [header]="'Entrega — ' + (entregaActiva?.apellidos || '') + ' ' + (entregaActiva?.nombres || '')" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <p-table [value]="medicamentosEntrega" responsiveLayout="scroll" class="mb-4">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Medicamento</th>
+                <th class="text-center">Cantidad</th>
+                <th>Indicaciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-d>
+              <tr>
+                <td>{{ d.nombremedi }}</td>
+                <td class="text-center">{{ d.cantidadmedicamentos }}</td>
+                <td>{{ d.indicaciones }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="3" class="text-center">Aún no se han agregado medicamentos.</td></tr>
+            </ng-template>
+          </p-table>
+
+          <h6>Agregar medicamento del catálogo</h6>
+          <div class="formgrid grid mb-4">
+            <div class="field col-5">
+              <label for="medicamentoEnt">Medicamento</label>
+              <p-dropdown id="medicamentoEnt" [(ngModel)]="nuevoDetalle.id_medicamento" [options]="medicamentos"
+                          optionLabel="nombre" optionValue="id_medicamento" placeholder="Seleccionar" [filter]="true"></p-dropdown>
+            </div>
+            <div class="field col-2">
+              <label for="cantidadEnt">Cantidad</label>
+              <p-inputNumber id="cantidadEnt" [(ngModel)]="nuevoDetalle.cantidadmedicamentos" [min]="1"></p-inputNumber>
+            </div>
+            <div class="field col-5">
+              <label for="indicacionesEnt">Indicaciones</label>
+              <input type="text" pInputText id="indicacionesEnt" [(ngModel)]="nuevoDetalle.indicaciones" />
+            </div>
+          </div>
+          <button pButton pRipple label="Agregar" icon="pi pi-plus" class="p-button-success mb-4" [loading]="guardandoDetalle" (click)="agregarMedicamento()"></button>
+
+          <h6>Agregar medicamento sin registro en catálogo</h6>
+          <div class="formgrid grid mb-4">
+            <div class="field col-5">
+              <label for="nombreSinReg">Nombre</label>
+              <input type="text" pInputText id="nombreSinReg" [(ngModel)]="medicinaSinRegistro" />
+            </div>
+            <div class="field col-2">
+              <label for="cantidadSinReg">Cantidad</label>
+              <p-inputNumber id="cantidadSinReg" [(ngModel)]="cantidadSinRegistro" [min]="1"></p-inputNumber>
+            </div>
+            <div class="field col-5">
+              <label for="indicacionesSinReg">Indicaciones (incluir dosis/tipo aquí)</label>
+              <input type="text" pInputText id="indicacionesSinReg" [(ngModel)]="indicacionesSinRegistro" />
+            </div>
+          </div>
+          <button pButton pRipple label="Agregar sin registro" icon="pi pi-plus" class="p-button-secondary mb-4" [loading]="guardandoDetalle" (click)="agregarSinRegistro()"></button>
+
+          <h6>Factura</h6>
+          <div class="formgrid grid mb-3">
+            <div class="field col-4">
+              <label for="subtotalDet">Subtotal</label>
+              <p-inputNumber id="subtotalDet" [(ngModel)]="entregaActiva!.subtotal" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            </div>
+            <div class="field col-4">
+              <label for="descuentoDet">Descuento</label>
+              <p-inputNumber id="descuentoDet" [(ngModel)]="entregaActiva!.descuento"></p-inputNumber>
+            </div>
+            <div class="field col-4">
+              <label for="totalDet">Total</label>
+              <p-inputNumber id="totalDet" [(ngModel)]="entregaActiva!.totalapagar" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            </div>
+          </div>
+          <button pButton pRipple label="Actualizar Factura" icon="pi pi-save" class="p-button-info" (click)="guardarFactura()"></button>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="detalleDialog = false"></button>
+          <button pButton pRipple label="Despachar Entrega" icon="pi pi-check" class="p-button-success" [loading]="despachando" (click)="despacharEntrega()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>

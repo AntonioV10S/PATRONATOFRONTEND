@@ -1,0 +1,129 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+
+      <p-toolbar class="mb-4">
+        <ng-template pTemplate="left">
+          <h5 class="m-0">Inventario</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="Nuevo Lote" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table [value]="inventario" responsiveLayout="scroll" [rows]="10"
+               [globalFilterFields]="['nombre_medicamento','codigodebarra']"
+               [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" dataKey="id_inventario">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Medicamento</th>
+            <th class="text-center">Existencias</th>
+            <th>Código de Barra</th>
+            <th class="text-center">Fecha Expiración</th>
+            <th class="text-center">Valor Unitario</th>
+            <th class="text-center" style="width: 10rem">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-datos>
+          <tr>
+            <td>{{ datos.nombre_medicamento }}</td>
+            <td class="text-center">
+              {{ datos.existencias }}
+              <p-tag *ngIf="datos.existencias != null && datos.existencias <= 10" value="Stock bajo" severity="danger" class="ml-1"></p-tag>
+            </td>
+            <td>{{ datos.codigodebarra }}</td>
+            <td class="text-center">
+              {{ datos.fechaexp }}
+              <p-tag *ngIf="diasParaVencer(datos.fechaexp) != null && diasParaVencer(datos.fechaexp)! <= 30" value="Por vencer" severity="warning" class="ml-1"></p-tag>
+            </td>
+            <td class="text-center">{{ datos.valoruni | currency }}</td>
+            <td>
+              <div class="flex justify-content-center gap-2">
+                <button pButton pRipple icon="pi pi-sort-numeric-up" class="p-button-rounded p-button-info" pTooltip="Actualizar existencia" (click)="abrirEditarExistencia(datos)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Desechar lote" (click)="confirmarDesechar(datos)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">No hay lotes de inventario registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="inventarioDialog" [style]="{width:'550px'}" header="Nuevo Lote de Inventario" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+
+          <div class="field">
+            <label for="medicamentoInv">Medicamento</label>
+            <p-dropdown id="medicamentoInv" [(ngModel)]="registro.id_medicamento" [options]="medicamentos"
+                        optionLabel="nombre" optionValue="id_medicamento" placeholder="Seleccionar" [filter]="true"
+                        [ngClass]="{'ng-invalid': submitted && !registro.id_medicamento}"></p-dropdown>
+            <small *ngIf="submitted && !registro.id_medicamento" class="p-error">Requerido.</small>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label for="existenciasInv">Existencias</label>
+              <p-inputNumber id="existenciasInv" [(ngModel)]="registro.existencias" [min]="0"
+                             [ngClass]="{'ng-invalid': submitted && registro.existencias == null}"></p-inputNumber>
+              <small *ngIf="submitted && registro.existencias == null" class="p-error">Requerido.</small>
+            </div>
+            <div class="field col-6">
+              <label for="valorInv">Valor unitario</label>
+              <p-inputNumber id="valorInv" [(ngModel)]="registro.valoruni" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="codigoInv">Código de barra</label>
+            <input type="text" pInputText id="codigoInv" [(ngModel)]="registro.codigodebarra" />
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-4">
+              <label for="fechacreInv">Fecha creación</label>
+              <input type="date" pInputText id="fechacreInv" [(ngModel)]="registro.fechacre" />
+            </div>
+            <div class="field col-4">
+              <label for="fechaexpInv">Fecha expiración</label>
+              <input type="date" pInputText id="fechaexpInv" [(ngModel)]="registro.fechaexp"
+                     [ngClass]="{'ng-invalid': submitted && !registro.fechaexp}" />
+              <small *ngIf="submitted && !registro.fechaexp" class="p-error">Requerido.</small>
+            </div>
+            <div class="field col-4">
+              <label for="fecharegInv">Fecha registro</label>
+              <input type="date" pInputText id="fecharegInv" [(ngModel)]="registro.fechareg" />
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" [loading]="guardando" (click)="guardarRegistro()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <p-dialog [(visible)]="editarExistenciaDialog" [style]="{width:'350px'}" header="Actualizar Existencia" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="nuevaExistenciaInput">Nueva cantidad</label>
+            <p-inputNumber id="nuevaExistenciaInput" [(ngModel)]="nuevaExistencia" [min]="0"></p-inputNumber>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="editarExistenciaDialog = false"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="guardarExistencia()"></button>
+        </ng-template>
+      </p-dialog>
+
+    </div>
+  </div>
+</div>
