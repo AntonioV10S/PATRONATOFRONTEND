@@ -49,7 +49,7 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'cuentas', component: CuentasComponent, canActivate: [adminGuard] },
       { path: 'roles', component: RolesComponent, canActivate: [adminGuard] },
-      { path: 'pacientes', component: PacientesComponent },
+      { path: 'pacientes', component: PacientesComponent, canActivate: [especialidadGuard(['Secretaría', 'Medicina General', 'Rehabilitación Física'])] },
       { path: 'registro-antecedentes', component: RegistroAntecedentesComponent, canActivate: [especialidadGuard(['Secretaría'])] },
       { path: 'registrar-historia-clinica', component: RegistrarHistoriaClinicaComponent, canActivate: [especialidadGuard(['Secretaría'])] },
       { path: 'agregar-paciente', component: AgregarPacienteComponent, canActivate: [especialidadGuard(['Secretaría'])] },

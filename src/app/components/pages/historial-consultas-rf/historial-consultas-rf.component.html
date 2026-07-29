@@ -18,8 +18,8 @@
         </div>
         <div class="flex align-items-end gap-2">
           <div class="field mb-0">
-            <label>Buscar por Apellido:</label>
-            <input type="text" pInputText [(ngModel)]="busquedaApellido" placeholder="Ingresar apellido del paciente" (keyup)="aplicarBusqueda()" />
+            <label>Buscar:</label>
+            <input type="text" pInputText [(ngModel)]="busquedaApellido" placeholder="Nombre, apellido, cédula o médico" (keyup)="aplicarBusqueda()" />
           </div>
           <button pButton pRipple icon="pi pi-search" label="Buscar" (click)="aplicarBusqueda()"></button>
         </div>
@@ -29,7 +29,7 @@
         <ng-template pTemplate="header">
           <tr>
             <th>Cédula</th><th>Nombres</th><th>Apellidos</th><th class="text-center">Edad</th>
-            <th class="text-center">Fecha</th><th>Lugar de Atención</th><th class="text-center">GAD</th><th class="text-center">Opciones</th>
+            <th class="text-center">Fecha</th><th>Médico</th><th>Lugar de Atención</th><th class="text-center">GAD</th><th class="text-center">Opciones</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-c>
@@ -39,6 +39,7 @@
             <td>{{ c.paciente?.apellidos }}</td>
             <td class="text-center">{{ c.paciente?.edad }} años</td>
             <td class="text-center">{{ c.fecha }}</td>
+            <td>{{ c.medico?.nombres || '—' }}</td>
             <td>{{ c.lugar_atencion }}</td>
             <td class="text-center"><p-tag [value]="c.paciente?.gad ? 'SI' : 'NO'" [severity]="c.paciente?.gad ? 'success' : 'secondary'"></p-tag></td>
             <td class="text-center">

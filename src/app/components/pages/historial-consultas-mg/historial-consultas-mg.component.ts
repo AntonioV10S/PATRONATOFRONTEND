@@ -78,7 +78,13 @@ export class HistorialConsultasMgComponent implements OnInit {
     const termino = this.busquedaApellido.trim().toLowerCase();
     this.consultasFiltradas = !termino
       ? this.consultas
-      : this.consultas.filter(c => (c.paciente?.apellidos || '').toLowerCase().includes(termino));
+      : this.consultas.filter(c => {
+          const p = c.paciente || {};
+          return (p.apellidos || '').toLowerCase().includes(termino) ||
+                 (p.nombres || '').toLowerCase().includes(termino) ||
+                 (p.cedula || '').includes(termino) ||
+                 (c.medico?.nombres || '').toLowerCase().includes(termino);
+        });
   }
 
   verDatosConsulta(fila: HistoriaClinicaMG): void {

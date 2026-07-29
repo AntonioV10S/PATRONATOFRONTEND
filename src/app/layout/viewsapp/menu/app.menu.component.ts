@@ -56,7 +56,7 @@ export class AppMenuComponent implements OnInit {
                 // El admin puede VER pacientes (auditoria), pero no crearlos ni
                 // editarlos — eso se controla dentro del propio componente.
                 { label: 'Pacientes', icon: 'pi pi-fw pi-user', routerLink: ['/pacientes'],
-                  roles: ['Administrador', 'Secretaría'] },
+                  roles: ['Secretaría'] },
                 { label: 'Agregar Paciente', icon: 'pi pi-fw pi-user-plus', routerLink: ['/agregar-paciente'],
                   roles: ['Secretaría'] },
                 { label: 'Registrar Historia Clínica', icon: 'pi pi-fw pi-file-edit', routerLink: ['/registrar-historia-clinica'],

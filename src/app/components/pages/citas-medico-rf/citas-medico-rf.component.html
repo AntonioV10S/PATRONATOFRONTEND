@@ -2,46 +2,52 @@
   <div class="col-12">
     <p-toast></p-toast>
 
+    <!-- SELECTOR DE PERÍODO -->
+    <div class="flex justify-content-end gap-2 mb-3">
+      <button pButton pRipple label="Día" class="p-button-sm" [class.p-button-outlined]="periodo !== 'dia'" (click)="cambiarPeriodo('dia')"></button>
+      <button pButton pRipple label="Semana" class="p-button-sm" [class.p-button-outlined]="periodo !== 'semana'" (click)="cambiarPeriodo('semana')"></button>
+      <button pButton pRipple label="Mes" class="p-button-sm" [class.p-button-outlined]="periodo !== 'mes'" (click)="cambiarPeriodo('mes')"></button>
+    </div>
+
     <!-- TARJETAS DE ESTADÍSTICAS -->
     <div class="grid mb-2">
       <div class="col-12 md:col-3">
-        <div class="border-round p-3 text-white" style="background: #3F51B5;">
-          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-users"></i><strong>Pacientes Atendidos</strong></div>
+        <div class="border-round p-3 text-white" style="background: #03A9F4;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-calendar"></i><strong>Citas</strong></div>
           <div class="flex justify-content-around text-center">
-            <div><div class="text-2xl font-bold">{{ estadisticas.totalH || 0 }}</div><small>HOMBRES</small></div>
-            <div><div class="text-2xl font-bold">{{ estadisticas.totalM || 0 }}</div><small>MUJERES</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.citasAtendidas || 0 }}</div><small>ATENDIDAS</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.citasPendientes || 0 }}</div><small>PENDIENTES</small></div>
           </div>
         </div>
       </div>
       <div class="col-12 md:col-3">
-        <div class="border-round p-3 text-white" style="background: #03A9F4;">
-          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-sync"></i><strong>Citas Agendadas</strong></div>
+        <div class="border-round p-3 text-white" style="background: #3F51B5;">
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-users"></i><strong>Pacientes Atendidos</strong></div>
           <div class="flex justify-content-around text-center">
-            <div><div class="text-2xl font-bold">{{ estadisticas.totalP || 0 }}</div><small>ATENDIDAS</small></div>
-            <div><div class="text-2xl font-bold">{{ estadisticas.totalC || 0 }}</div><small>PENDIENTES</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.pacientesNuevos || 0 }}</div><small>NUEVOS</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.pacientesSeguimiento || 0 }}</div><small>SEGUIMIENTO</small></div>
           </div>
         </div>
       </div>
       <div class="col-12 md:col-3">
         <div class="border-round p-3 text-white" style="background: #5C6BC0;">
-          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-map-marker"></i><strong>Lugar de Atención</strong></div>
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-heart"></i><strong>Tratamientos Aplicados</strong></div>
           <div class="flex justify-content-around text-center">
-            <div><div class="text-2xl font-bold">{{ estadisticas.patronato || 0 }}</div><small>PATRONATO</small></div>
-            <div><div class="text-2xl font-bold">{{ estadisticas.domicilio || 0 }}</div><small>DOMICILIO</small></div>
+            <div><div class="text-2xl font-bold">{{ estadisticas.tratamientosAplicados || 0 }}</div><small>EN EL PERÍODO</small></div>
           </div>
         </div>
       </div>
       <div class="col-12 md:col-3">
         <div class="border-round p-3 text-white" style="background: #D84315;">
-          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-clock"></i><strong>Horas Laboradas</strong></div>
-          <div class="flex justify-content-around text-center">
-            <div><div class="text-2xl font-bold">{{ horasEstimadas }}</div><small>HORAS</small></div>
-            <div><div class="text-2xl font-bold">{{ minutosEstimados }}</div><small>MINUTOS</small></div>
+          <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-clock"></i><strong>Próxima Cita</strong></div>
+          <div class="text-center" *ngIf="estadisticas.proximaCita; else sinProxima">
+            <div class="text-2xl font-bold">{{ estadisticas.proximaCita.hora }}</div>
+            <small>{{ estadisticas.proximaCita.nombres }}</small>
           </div>
+          <ng-template #sinProxima><div class="text-center"><small>Sin citas pendientes hoy</small></div></ng-template>
         </div>
       </div>
     </div>
-    <small class="text-500 block mb-3"><i class="pi pi-info-circle mr-1"></i>Horas laboradas es un estimado basado en la cantidad de consultas atendidas este mes (no hay registro de fichadas de entrada/salida).</small>
 
     <!-- CITAS EN ESPERA -->
     <div class="card px-4 py-4">

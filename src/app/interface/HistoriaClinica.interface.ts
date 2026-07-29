@@ -19,6 +19,7 @@ export interface HistoriaClinicaMG {
   firma_ecdsa?: string;
   hash_integridad?: string;
   paciente?: any;
+  medico?: { nombres?: string };
   enfermedad?: Enfermedad;
   // Solo presente al pedir el detalle (obtenerHistoria) — es el contenido
   // descifrado en tiempo real con la llave privada institucional.

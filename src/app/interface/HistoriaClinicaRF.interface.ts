@@ -30,6 +30,7 @@ export interface HistoriaClinicaRF {
   firma_ecdsa?: string;
   hash_integridad?: string;
   paciente?: any;
+  medico?: { nombres?: string };
   diagnostico?: Diagnostico;
   tratamientos?: Tratamiento;
   datos_sensibles?: {

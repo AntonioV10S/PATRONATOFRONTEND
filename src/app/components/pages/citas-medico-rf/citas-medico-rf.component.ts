@@ -26,11 +26,10 @@ export class CitasMedicoRfComponent implements OnInit {
 
   readonly especialidad = 'Rehabilitación Física';
 
-  // Tarjetas de estadísticas (rango: desde el primer día del mes hasta hoy)
   estadisticas: any = {};
   cargandoStats: boolean = false;
+  periodo: 'dia' | 'semana' | 'mes' = 'dia';
 
-  // Cola de espera del día
   fechaActual: string = new Date().toISOString().split('T')[0];
   citasDelDia: Cita[] = [];
   citasFiltradas: Cita[] = [];
@@ -48,10 +47,28 @@ export class CitasMedicoRfComponent implements OnInit {
     this.cargarCitasDelDia();
   }
 
+  cambiarPeriodo(p: 'dia' | 'semana' | 'mes'): void {
+    this.periodo = p;
+    this.cargarEstadisticas();
+  }
+
+  private rangoDelPeriodo(): { inicio: string; fin: string } {
+    const hoy = new Date();
+    const fin = this.fechaActual;
+    if (this.periodo === 'dia') return { inicio: fin, fin };
+    if (this.periodo === 'semana') {
+      const inicioSemana = new Date(hoy);
+      inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+      return { inicio: inicioSemana.toISOString().split('T')[0], fin };
+    }
+    const primerDiaMes = fin.slice(0, 8) + '01';
+    return { inicio: primerDiaMes, fin };
+  }
+
   cargarEstadisticas(): void {
     this.cargandoStats = true;
-    const primerDiaMes = this.fechaActual.slice(0, 8) + '01';
-    this.historiaService.getEstadisticas(primerDiaMes, this.fechaActual, this.especialidad).subscribe({
+    const { inicio, fin } = this.rangoDelPeriodo();
+    this.historiaService.getEstadisticas(inicio, fin, this.especialidad).subscribe({
       next: (data) => {
         this.cargandoStats = false;
         this.estadisticas = data;
@@ -82,17 +99,6 @@ export class CitasMedicoRfComponent implements OnInit {
     this.citasFiltradas = !termino
       ? this.citasDelDia
       : this.citasDelDia.filter(c => (c.nombres || '').toLowerCase().includes(termino));
-  }
-
-  // Horas laboradas es un estimado (el sistema no registra fichadas de entrada/salida):
-  // se calcula sobre la base de ~20 minutos promedio por consulta atendida.
-  get horasEstimadas(): number {
-    const minutos = (this.estadisticas.totalP || 0) * 20;
-    return Math.floor(minutos / 60);
-  }
-  get minutosEstimados(): number {
-    const minutos = (this.estadisticas.totalP || 0) * 20;
-    return minutos % 60;
   }
 
   private mostrarError(detalle: string): void {
