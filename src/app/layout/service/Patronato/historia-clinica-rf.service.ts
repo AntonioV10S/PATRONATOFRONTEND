@@ -47,6 +47,14 @@ export class HistoriaClinicaRFService {
     return this.http.post<any>(`${this.url}/rf/historias`, datos).pipe(catchError(this.handleError));
   }
 
+  verificarIntegridad(id: number): Observable<any> {
+    return this.http.get<any>(`${this.url}/rf/historias/verificar/${id}`).pipe(catchError(this.handleError));
+  }
+
+  verificarTodas(): Observable<any> {
+    return this.http.get<any>(`${this.url}/rf/historias/verificar-todas`).pipe(catchError(this.handleError));
+  }
+
   filtrarPorFecha(fechaInicial: string, fechaFinal: string): Observable<HistoriaClinicaRF[]> {
     return this.http.get<{ result: HistoriaClinicaRF[] | string }>(`${this.url}/rf/historias/rango/${fechaInicial}/${fechaFinal}`).pipe(
       map((data) => Array.isArray(data.result) ? data.result : []),

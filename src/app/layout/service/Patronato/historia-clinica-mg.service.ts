@@ -45,6 +45,10 @@ export class HistoriaClinicaMGService {
     return this.http.get<any>(`${this.url}/mg/historias/verificar/${id}`).pipe(catchError(this.handleError));
   }
 
+  verificarTodas(): Observable<any> {
+    return this.http.get<any>(`${this.url}/mg/historias/verificar-todas`).pipe(catchError(this.handleError));
+  }
+
   crearHistoria(datos: NuevaHistoriaClinicaMG): Observable<any> {
     return this.http.post<any>(`${this.url}/mg/historias`, datos).pipe(catchError(this.handleError));
   }

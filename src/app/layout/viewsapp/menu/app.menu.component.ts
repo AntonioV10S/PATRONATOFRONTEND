@@ -46,6 +46,7 @@ export class AppMenuComponent implements OnInit {
                 { label: 'Turnos', icon: 'pi pi-fw pi-clock', routerLink: ['/horarios'] },
                 { label: 'Parámetros', icon: 'pi pi-fw pi-list', routerLink: ['/parametros'] },
                 { label: 'Incidentes de Seguridad', icon: 'pi pi-fw pi-shield', routerLink: ['/incidentes-seguridad'] },
+                { label: 'Auditoría de Integridad', icon: 'pi pi-fw pi-verified', routerLink: ['/auditoria-integridad'] },
                 { label: 'Solicitudes ARCO+', icon: 'pi pi-fw pi-user-edit', routerLink: ['/solicitudes-arco'] },
             ]
         },

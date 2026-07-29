@@ -1,0 +1,84 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <p-toast></p-toast>
+
+      <div class="flex justify-content-between align-items-center mb-4">
+        <h5 class="m-0">Auditoría de Integridad</h5>
+        <button pButton pRipple label="Volver a Auditar" icon="pi pi-refresh" [loading]="cargando" (click)="ejecutarAuditoria()"></button>
+      </div>
+
+      <div class="surface-100 border-round p-3 mb-4">
+        <i class="pi pi-info-circle text-primary mr-2"></i>
+        Revisa automáticamente TODAS las historias clínicas del sistema (Medicina General y Rehabilitación Física),
+        comprobando hash, firma digital, y si el contenido realmente se puede descifrar con la llave institucional
+        actual — sin necesidad de abrir cada registro uno por uno.
+      </div>
+
+      <!-- RESUMEN -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-3">
+          <div class="border-round p-3 text-white text-center" style="background: #455A64;">
+            <div class="text-3xl font-bold">{{ resumen.total }}</div>
+            <small>TOTAL AUDITADO</small>
+          </div>
+        </div>
+        <div class="col-12 md:col-3">
+          <div class="border-round p-3 text-white text-center" style="background: #2E7D32;">
+            <div class="text-3xl font-bold">{{ resumen.integros }}</div>
+            <small>ÍNTEGROS</small>
+          </div>
+        </div>
+        <div class="col-12 md:col-3">
+          <div class="border-round p-3 text-white text-center" style="background: #C62828;">
+            <div class="text-3xl font-bold">{{ resumen.alterados }}</div>
+            <small>ALTERADOS</small>
+          </div>
+        </div>
+        <div class="col-12 md:col-3">
+          <div class="border-round p-3 text-white text-center" style="background: #F9A825;">
+            <div class="text-3xl font-bold">{{ resumen.noDescifrables }}</div>
+            <small>NO DESCIFRABLES</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div class="flex align-items-center gap-2">
+          <p-checkbox [binary]="true" [(ngModel)]="soloProblemas" inputId="soloProblemas" (onChange)="aplicarFiltros()"></p-checkbox>
+          <label for="soloProblemas" class="m-0">Mostrar solo registros con problema</label>
+        </div>
+        <div class="p-inputgroup" style="max-width: 320px;">
+          <input type="text" pInputText placeholder="Buscar por paciente, médico o ID" [(ngModel)]="busqueda" (keyup)="aplicarFiltros()" />
+          <button pButton pRipple icon="pi pi-search"></button>
+        </div>
+      </div>
+
+      <p-table [value]="filasFiltradas" [loading]="cargando" responsiveLayout="scroll" [paginator]="true" [rows]="20" [rowsPerPageOptions]="rowsPerPageOptions">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Especialidad</th><th>ID</th><th class="text-center">Fecha</th>
+            <th>Paciente</th><th>Médico</th><th class="text-center">Estado</th><th>Detalle</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-fila>
+          <tr>
+            <td>{{ fila.especialidad }}</td>
+            <td>{{ fila.id }}</td>
+            <td class="text-center">{{ fila.fecha }}</td>
+            <td>{{ fila.paciente }}</td>
+            <td>{{ fila.medico }}</td>
+            <td class="text-center">
+              <p-tag [value]="fila.estado" [severity]="estadoSeveridad[fila.estado] || 'secondary'"></p-tag>
+            </td>
+            <td style="max-width: 300px; white-space: normal;"><small>{{ fila.detalle }}</small></td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="7" class="text-center">{{ cargando ? 'Auditando...' : 'No hay historias clínicas registradas.' }}</td></tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+  </div>
+</div>

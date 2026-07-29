@@ -81,8 +81,9 @@
               <i class="pi" [ngClass]="fila.certificado ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
             </td>
             <td>
-              <div class="flex justify-content-center">
+              <div class="flex justify-content-center gap-2">
                 <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info" pTooltip="Ver contenido (descifrado)" (click)="verDetalle(fila)"></button>
+                <button pButton pRipple icon="pi pi-shield" class="p-button-rounded p-button-help" pTooltip="Verificar integridad forense" (click)="verificarIntegridad(fila)"></button>
               </div>
             </td>
           </tr>

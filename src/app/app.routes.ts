@@ -26,6 +26,7 @@ import { HistorialCompletoComponent } from './components/pages/historial-complet
 import { HorariosComponent } from './components/pages/horarios/horarios.component';
 import { ParametrosComponent } from './components/pages/parametros/parametros.component';
 import { IncidentesSeguridadComponent } from './components/pages/incidentes-seguridad/incidentes-seguridad.component';
+import { AuditoriaIntegridadComponent } from './components/pages/auditoria-integridad/auditoria-integridad.component';
 import { SolicitudesArcoComponent } from './components/pages/solicitudes-arco/solicitudes-arco.component';
 import { RegistroAntecedentesComponent } from './components/pages/registro-antecedentes/registro-antecedentes.component';
 import { RegistrarHistoriaClinicaComponent } from './components/pages/registrar-historia-clinica/registrar-historia-clinica.component';
@@ -68,6 +69,7 @@ export const routes: Routes = [
       { path: 'horarios', component: HorariosComponent, canActivate: [adminGuard] },
       { path: 'parametros', component: ParametrosComponent, canActivate: [adminGuard] },
       { path: 'incidentes-seguridad', component: IncidentesSeguridadComponent, canActivate: [adminGuard] },
+      { path: 'auditoria-integridad', component: AuditoriaIntegridadComponent, canActivate: [adminGuard] },
       { path: 'solicitudes-arco', component: SolicitudesArcoComponent, canActivate: [especialidadGuard(['Secretaría', 'Administrador'])] },
       { path: 'citas', component: CitasComponent, canActivate: [especialidadGuard(['Secretaría', 'Medicina General', 'Rehabilitación Física'])] },
       { path: 'farmacia/medicamentos', component: MedicamentosComponent, canActivate: [especialidadGuard(['Farmacia'])] },

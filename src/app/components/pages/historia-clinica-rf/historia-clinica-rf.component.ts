@@ -368,6 +368,28 @@ export class HistoriaClinicaRFComponent implements OnInit {
     });
   }
 
+  verificarIntegridad(fila: HistoriaClinicaRF): void {
+    if (!fila.id_rf) return;
+    this.historiaService.verificarIntegridad(fila.id_rf).subscribe({
+      next: (res) => {
+        this.messageService.add({
+          severity: res.match ? 'success' : 'error',
+          summary: res.match ? 'Íntegro' : 'Alerta de integridad',
+          detail: res.result,
+          life: 8000
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Alerta de integridad',
+          detail: err?.error?.result || 'Los datos podrían haber sido manipulados.',
+          life: 8000
+        });
+      }
+    });
+  }
+
   private mostrarError(detalle: string): void {
     this.messageService.add({ severity: 'error', summary: 'Error', detail: detalle });
   }
