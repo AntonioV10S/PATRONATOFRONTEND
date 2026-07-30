@@ -1,5 +1,132 @@
-<div class="card">
-  <h1>
-    Hola mundo
-  </h1>
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-4 py-4">
+      <h4 class="mb-1">Hola, {{ nombre }}</h4>
+      <p class="text-500 mt-0 mb-4">{{ rol }} · Patronato del GAD Municipal del Cantón Junín</p>
+
+      <!-- ============ ADMINISTRADOR ============ -->
+      <ng-container *ngIf="rol === 'Administrador'">
+        <div class="grid mb-4">
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #2E7D32;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-users"></i><strong>Cuentas Activas</strong></div>
+              <div class="text-3xl font-bold">{{ totalCuentas }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #C62828;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-shield"></i><strong>Incidentes de Seguridad Abiertos</strong></div>
+              <div class="text-3xl font-bold">{{ incidentesAbiertos }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #F9A825;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-user-edit"></i><strong>Solicitudes ARCO+ Pendientes</strong></div>
+              <div class="text-3xl font-bold">{{ solicitudesArcoPendientes }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a routerLink="/cuentas" pButton pRipple label="Cuentas de Usuario" icon="pi pi-users" class="p-button-outlined"></a>
+          <a routerLink="/auditoria-integridad" pButton pRipple label="Auditoría de Integridad" icon="pi pi-verified" class="p-button-outlined"></a>
+          <a routerLink="/incidentes-seguridad" pButton pRipple label="Incidentes de Seguridad" icon="pi pi-shield" class="p-button-outlined"></a>
+          <a routerLink="/reportes" pButton pRipple label="Reportes Estadísticos" icon="pi pi-chart-bar" class="p-button-outlined"></a>
+        </div>
+      </ng-container>
+
+      <!-- ============ SECRETARÍA ============ -->
+      <ng-container *ngIf="rol === 'Secretaría'">
+        <div class="grid mb-4">
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #03A9F4;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-calendar"></i><strong>Citas de Hoy</strong></div>
+              <div class="text-3xl font-bold">{{ citasHoy }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #3F51B5;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-user"></i><strong>Total de Pacientes</strong></div>
+              <div class="text-3xl font-bold">{{ totalPacientes }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #F9A825;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-user-edit"></i><strong>Solicitudes ARCO+ Pendientes</strong></div>
+              <div class="text-3xl font-bold">{{ solicitudesArcoPendientes }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a routerLink="/agendar-cita" pButton pRipple label="Agendar Cita" icon="pi pi-calendar-plus" class="p-button-outlined"></a>
+          <a routerLink="/registrar-historia-clinica" pButton pRipple label="Registrar Historia Clínica" icon="pi pi-file-edit" class="p-button-outlined"></a>
+          <a routerLink="/pacientes" pButton pRipple label="Pacientes" icon="pi pi-user" class="p-button-outlined"></a>
+        </div>
+      </ng-container>
+
+      <!-- ============ MEDICINA GENERAL / REHABILITACIÓN FÍSICA ============ -->
+      <ng-container *ngIf="rol === 'Medicina General' || rol === 'Rehabilitación Física'">
+        <div class="grid mb-4">
+          <div class="col-12 md:col-3">
+            <div class="border-round p-3 text-white text-center" style="background: #03A9F4;">
+              <div class="text-2xl font-bold">{{ citasAtendidas }}</div>
+              <small>ATENDIDAS HOY</small>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="border-round p-3 text-white text-center" style="background: #5C6BC0;">
+              <div class="text-2xl font-bold">{{ citasPendientes }}</div>
+              <small>PENDIENTES HOY</small>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="border-round p-3 text-white text-center" style="background: #3F51B5;">
+              <div class="text-2xl font-bold">{{ pacientesNuevos }}</div>
+              <small>PACIENTES NUEVOS HOY</small>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="border-round p-3 text-white text-center" style="background: #2E7D32;">
+              <div class="text-2xl font-bold">{{ pacientesSeguimiento }}</div>
+              <small>SEGUIMIENTO HOY</small>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a [routerLink]="rol === 'Medicina General' ? '/citas-medico-mg' : '/citas-medico-rf'" pButton pRipple label="Mis Citas" icon="pi pi-sitemap" class="p-button-outlined"></a>
+          <a [routerLink]="rol === 'Medicina General' ? '/historial-consultas-mg' : '/historial-consultas-rf'" pButton pRipple label="Historial de Consultas" icon="pi pi-folder" class="p-button-outlined"></a>
+          <a routerLink="/pacientes" pButton pRipple label="Pacientes" icon="pi pi-user" class="p-button-outlined"></a>
+        </div>
+      </ng-container>
+
+      <!-- ============ FARMACIA ============ -->
+      <ng-container *ngIf="rol === 'Farmacia'">
+        <div class="grid mb-4">
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #3F51B5;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-inbox"></i><strong>Recetas por Entregar</strong></div>
+              <div class="text-3xl font-bold">{{ recetasPendientes }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #C62828;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-exclamation-triangle"></i><strong>Medicamentos con Stock Bajo</strong></div>
+              <div class="text-3xl font-bold">{{ stockBajo }}</div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="border-round p-3 text-white" style="background: #F9A825;">
+              <div class="flex align-items-center gap-2 mb-2"><i class="pi pi-clock"></i><strong>Por Vencer (30 días)</strong></div>
+              <div class="text-3xl font-bold">{{ porVencer }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a routerLink="/farmacia/home" pButton pRipple label="Panel de Farmacia" icon="pi pi-home" class="p-button-outlined"></a>
+          <a routerLink="/farmacia/nueva-adquisicion" pButton pRipple label="Nueva Adquisición" icon="pi pi-plus-circle" class="p-button-outlined"></a>
+          <a routerLink="/farmacia/entregas" pButton pRipple label="Recetas Entregadas" icon="pi pi-send" class="p-button-outlined"></a>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
 </div>

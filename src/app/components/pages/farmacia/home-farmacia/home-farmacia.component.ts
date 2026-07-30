@@ -43,7 +43,8 @@ export class HomeFarmaciaComponent implements OnInit {
         this.medicamentosPorExpirar = data
           .map(i => ({ ...i, diasRestantes: this.diasParaVencer(i.fechaexp) }))
           .filter(i => i.diasRestantes <= 30);
-      }
+      },
+      error: (err) => console.error('Error al cargar el inventario:', err)
     });
   }
 
