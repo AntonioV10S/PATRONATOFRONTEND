@@ -3,10 +3,22 @@
     <div class="card px-4 py-4">
       <p-toast></p-toast>
       <p-confirmDialog></p-confirmDialog>
-      <h5 class="mb-4">Mostrar Citas</h5>
+
+      <div class="flex align-items-center gap-3 mb-4">
+        <div class="flex align-items-center justify-content-center border-circle" style="width: 3rem; height: 3rem; background: #E3F2FD;">
+          <i class="pi pi-calendar text-xl" style="color: #1565C0;"></i>
+        </div>
+        <div>
+          <h5 class="m-0">Mostrar Citas</h5>
+          <span class="text-500 text-sm">Consulta las citas agendadas por especialidad</span>
+        </div>
+      </div>
 
       <!-- MEDICINA GENERAL -->
-      <p-panel header="Citas de Medicina General" [toggleable]="true" styleClass="mb-3">
+      <p-panel [toggleable]="true" styleClass="mb-3">
+        <ng-template pTemplate="header">
+          <span class="flex align-items-center gap-2"><i class="pi pi-heart-fill" style="color:#1565C0;"></i><strong>Citas de Medicina General</strong></span>
+        </ng-template>
         <div class="flex flex-wrap justify-content-between gap-3 mb-3">
           <div class="flex align-items-end gap-2">
             <div class="field mb-0">
@@ -49,7 +61,10 @@
       </p-panel>
 
       <!-- REHABILITACIÓN FÍSICA -->
-      <p-panel header="Citas de Rehabilitación Física" [toggleable]="true" styleClass="mb-3">
+      <p-panel [toggleable]="true" styleClass="mb-3">
+        <ng-template pTemplate="header">
+          <span class="flex align-items-center gap-2"><i class="pi pi-heart-fill" style="color:#2E7D32;"></i><strong>Citas de Rehabilitación Física</strong></span>
+        </ng-template>
         <div class="flex flex-wrap justify-content-between gap-3 mb-3">
           <div class="flex align-items-end gap-2">
             <div class="field mb-0">
@@ -92,7 +107,10 @@
       </p-panel>
 
       <!-- TERAPIA DE LENGUAJE -->
-      <p-panel header="Citas de Terapia de lenguaje" [toggleable]="true" styleClass="mb-3">
+      <p-panel [toggleable]="true" styleClass="mb-3">
+        <ng-template pTemplate="header">
+          <span class="flex align-items-center gap-2"><i class="pi pi-comments" style="color:#F9A825;"></i><strong>Citas de Terapia de lenguaje</strong></span>
+        </ng-template>
         <div class="flex flex-wrap justify-content-between gap-3 mb-3">
           <div class="flex align-items-end gap-2">
             <div class="field mb-0">
